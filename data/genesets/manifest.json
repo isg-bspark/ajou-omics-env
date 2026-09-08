@@ -1,0 +1,54 @@
+{
+  "reactome": {
+    "n_sources": 2105,
+    "n_edges": 130381,
+    "size_min": 5,
+    "size_median": 25,
+    "size_max": 2613,
+    "n_sources_under_15": 710,
+    "origin": "https://maayanlab.cloud/Enrichr/geneSetLibrary?mode=text&libraryName=Reactome_Pathways_2024",
+    "fetched_at": "2026-08-31T05:53:07+00:00",
+    "kind": "gene set",
+    "file": "data/genesets/reactome.csv.gz",
+    "note": "Enrichr 배포본. 작은 집합이 많으니 tmin 과 크기 상한을 꼭 걸 것"
+  },
+  "hallmark": {
+    "n_sources": 50,
+    "n_edges": 7318,
+    "size_min": 32,
+    "size_median": 199,
+    "size_max": 200,
+    "n_sources_under_15": 0,
+    "origin": "decoupler.op.hallmark(organism='human')",
+    "fetched_at": "2026-08-31T06:13:27+00:00",
+    "kind": "gene set",
+    "file": "data/genesets/hallmark.csv.gz",
+    "note": "source 이름에 HALLMARK_ 접두어가 없다 (INTERFERON_ALPHA_RESPONSE)"
+  },
+  "collectri": {
+    "n_sources": 1185,
+    "n_edges": 42990,
+    "size_min": 1,
+    "size_median": 9,
+    "size_max": 1304,
+    "n_sources_under_15": 716,
+    "origin": "decoupler.op.collectri(organism='human')",
+    "fetched_at": "2026-08-31T06:17:06+00:00",
+    "kind": "footprint",
+    "file": "data/genesets/collectri.csv.gz",
+    "note": "IFN 반응의 STAT1 · STAT2 · IRF9 를 여기서 본다"
+  },
+  "progeny": {
+    "n_sources": 14,
+    "n_edges": 6463,
+    "size_min": 202,
+    "size_median": 499,
+    "size_max": 500,
+    "n_sources_under_15": 0,
+    "origin": "decoupler.op.progeny(organism='human', top=500)",
+    "fetched_at": "2026-08-31T06:16:01+00:00",
+    "kind": "footprint",
+    "file": "data/genesets/progeny.csv.gz",
+    "note": "top=500. weight 의 부호가 활성/억제 방향이다"
+  }
+}

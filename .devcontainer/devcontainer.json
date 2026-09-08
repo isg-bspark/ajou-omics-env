@@ -1,0 +1,53 @@
+{
+  "name": "ajou-omics-scrnaseq",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+  "secrets": {
+    "ANTHROPIC_API_KEY": {
+      "description": "Anthropic Console에서 발급한 API Key를 입력하세요. (Console 종량제 과금)",
+      "documentationUrl": "https://platform.claude.com/settings/keys"
+    },
+    "CLAUDE_CODE_OAUTH_TOKEN": {
+      "description": "API Key 대신 Pro/Max 구독으로 인증할 때 사용합니다. 로컬에서 `claude setup-token` 으로 발급받아 등록하세요. ANTHROPIC_API_KEY 가 없을 때만 사용됩니다.",
+      "documentationUrl": "https://code.claude.com/docs/en/authentication#generate-a-long-lived-token"
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "waitFor": "postCreateCommand",
+  "remoteEnv": {
+    "PATH": "/home/vscode/.local/bin:${containerEnv:PATH}"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-toolsai.jupyter",
+        "ms-toolsai.jupyter-renderers"
+      ],
+      "settings": {
+        "workbench.colorTheme": "Default Dark Modern",
+        "workbench.preferredDarkColorTheme": "Default Dark Modern",
+        "window.autoDetectColorScheme": false,
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.terminal.activateEnvInCurrentTerminal": true,
+        "jupyter.askForKernelRestart": false,
+        "notebook.output.textLineLimit": 60,
+        "files.autoSave": "afterDelay",
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  "remoteUser": "vscode"
+}

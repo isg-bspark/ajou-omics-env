@@ -1,0 +1,42 @@
+# data/raw/ 의 GEO 원본은 저장소에 함께 포함한다
+# (수강생이 GEO 다운로드 없이 전처리 과정까지 재현할 수 있도록)
+
+# 강사용 세포 타입 주석 포함본 (prepare_data.py --with-cell-type)
+data/processed/*_with_celltype.h5ad
+
+# 분석 중 생성되는 결과물
+results/
+figures/
+*.h5ad.tmp
+
+# 병렬 실험 (2일차 2교시) — parallel_lab/setup.sh 가 만든다
+worktrees/
+
+# 개인 설정
+CLAUDE.md
+.claude/settings.local.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.bak
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# OS / 편집기
+.DS_Store
+.vscode/settings.json
+
+# 2일차 1교시 실습 (agent_lab) — 실행 중 생성물
+.runs.json
+agent_lab/.runs.json
+
+# 강사 준비 파일 — 학생 배포본에 넣지 않음
+HANDOFF.md
+agent_lab/REHEARSAL.md
+agent_lab/REHEARSAL_LOG.md
+agent_lab/INSTRUCTOR.md
+
+# 편집기 임시 파일
+*.swp

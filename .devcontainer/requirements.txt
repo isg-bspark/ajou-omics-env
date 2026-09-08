@@ -1,0 +1,51 @@
+# ---------------------------------------------------------------
+# 아주대 오믹스 실습 - single-cell RNA-seq 분석 환경 (Python)
+# Codespace 생성 시 .devcontainer/post-create.sh 에서 자동 설치됩니다.
+# ---------------------------------------------------------------
+
+# --- 핵심 스택 ---
+scanpy>=1.10,<1.12
+anndata>=0.10,<0.13
+numpy>=1.26,<3
+pandas>=2.2,<3
+scipy>=1.11,<2
+scikit-learn>=1.4,<2
+h5py>=3.10,<4
+
+# --- 그래프 기반 클러스터링 / 차원축소 ---
+igraph>=0.11,<0.12
+leidenalg>=0.10,<0.11
+umap-learn>=0.5,<0.6
+scikit-misc>=0.3,<1        # scanpy 의 flavor="seurat_v3" HVG 계산에 필요
+
+# --- 배치 보정 / 통합 ---
+harmonypy>=0.0.9,<0.1
+
+# --- 차등발현 / 경로 분석 (IFN-beta 반응 해석용) ---
+pydeseq2>=0.5,<1           # pseudobulk 기반 DE
+decoupler>=2.2,<3          # 경로/전사인자 활성 추정 (AUCell · GSEA · ULM · ORA)
+gseapy>=1.1,<2             # GSEA / over-representation
+
+# decoupler 는 2.0 에서 API 가 전면 개편되었습니다 (dc.run_ulm → dc.mt.ulm 등).
+# 실습 문서와 프롬프트는 2.x 기준으로 쓰여 있습니다 — functional_lab/CHEATSHEET.md 참고.
+# 이미 만들어 둔 Codespace 는 post-create 가 다시 돌지 않으므로 직접 올려야 합니다:
+#     pip install -U 'decoupler>=2.2,<3'
+
+# --- 세포 타입 주석 ---
+celltypist>=1.6,<2
+
+# --- 시각화 ---
+matplotlib>=3.8,<4
+seaborn>=0.13,<0.14
+
+# --- 노트북 ---
+jupyterlab>=4.2,<5
+ipykernel>=6.29,<7
+ipywidgets>=8.1,<9
+tqdm>=4.66,<5
+
+# --- MCP · SKILL 실습 (2일차 1교시) ---
+# mcp 는 python3 가 가리키는 인터프리터에 깔려야 합니다.
+# (agent_lab/server.py 를 띄우는 python3 와 같아야 하므로 'python -m pip' 로 설치)
+mcp[cli]>=2.0              # MCP 서버 SDK — agent_lab/server.py
+uv>=0.5                    # uvx — 남이 만든 MCP 서버를 격리 환경에서 실행

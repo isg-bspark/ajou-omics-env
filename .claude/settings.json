@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./agent_lab/server.py)",
+      "Read(./agent_lab/reference/**)"
+    ]
+  }
+}

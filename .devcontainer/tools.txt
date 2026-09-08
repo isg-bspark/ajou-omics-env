@@ -1,0 +1,4 @@
+# uvx 로 미리 받아둘 MCP 서버. 한 줄에 하나. # 주석·빈 줄 무시.
+#   sed -e 's/#.*//' -e '/^[[:space:]]*$/d' tools.txt | xargs -r -n1 uv tool install
+
+mcp-server-fetch

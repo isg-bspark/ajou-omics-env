@@ -1,0 +1,6 @@
+{
+  "mcpServers": {
+    "sc-omics": { "type": "stdio", "command": "python3", "args": ["agent_lab/server.py"] },
+    "ols":      { "type": "http",  "url": "https://www.ebi.ac.uk/ols4/api/mcp" }
+  }
+}
