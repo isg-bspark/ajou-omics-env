@@ -42,8 +42,25 @@ Task 를 먼저 받는 이유는 `EXPERIMENT.md` 의 목표 줄을 실제 연구
    | 마지막 줄 | 해야 할 일 |
    |---|---|
    | `WORKTREE <경로>` | `EnterWorktree` 도구를 `path: <경로>` 로 호출해 세션을 그 안으로 옮긴다 |
-   | `EXISTS <경로>` | 같은 이름의 실험이 이미 있다. 이어서 할지 다른 이름으로 새로 만들지 사용자에게 묻고, 이어서 하면 똑같이 `EnterWorktree` 로 진입한다 |
+   | `EXISTS <경로>` | 같은 이름의 실험이 이미 있고 최신이다. 이어서 할지 다른 이름으로 새로 만들지 사용자에게 묻고, 이어서 하면 똑같이 `EnterWorktree` 로 진입한다 |
+   | `EXISTS <경로> STALE <n>` | 같은 이름의 실험이 이미 있지만 그 branch 가 main 보다 `n` 커밋 뒤에 있다. **진입하기 전에** 아래 선택지를 사용자에게 제시한다 |
    | `ALREADY_IN_WORKTREE <경로>` | 이미 실험 worktree 안에서 세션이 떠 있다. 세팅도 진입도 하지 않고 그대로 1단계로 간다 |
+
+   `STALE` 이면 그 worktree 는 **옛 저장소 구성 그대로** 남아 있다. 그 사이에 공유 파일의
+   위치가 바뀌었다면(예: 보조 스크립트가 루트에서 `tools/` 로 옮겨진 커밋) root 에 옛
+   파일과 끊어진 심볼릭 링크가 보이고, `tools/` 같은 새 경로는 아예 없다. 그대로 분석을
+   시작하면 없는 경로를 참조하게 된다. 세 선택지를 그대로 제시하고 답을 기다린다.
+
+   | 선택 | 하는 일 |
+   |---|---|
+   | 갱신하고 이어서 한다 (권장) | `bash "$ROOT/.claude/scripts/worktree_init.sh" <이름> --refresh` — main 을 실험 branch 에 merge 하고 공유 링크를 새 구성으로 다시 건다. `data/processed/`·`results/`·`figures/` 의 기존 산출물은 그대로 남는다. 끝나면 `EXISTS <경로>` 를 출력하므로 그때 `EnterWorktree` 로 진입한다 |
+   | 다른 이름으로 새로 시작한다 | 새 이름으로 0단계 2번을 다시 실행한다. 옛 worktree 는 손대지 않는다 |
+   | 그대로 이어서 한다 | 옛 구성을 감수한다. 이 선택을 받았으면 0.5단계에서 무엇이 끊어져 있는지 확인해 사용자에게 알린다 |
+
+   `--refresh` 는 실험 branch 에 merge 를 하는 유일한 예외다 — 사용자가 이 선택지를
+   고른 뒤에만 실행한다. merge 충돌이 나면 스크립트가 exit 3 으로 멈추고 무엇을 해야
+   하는지 출력한다. 그때는 그 출력을 사용자에게 전달하고 멈춘다 — 충돌을 스스로
+   해결하지 않는다.
 
    커밋되지 않은 변경이 있어도 스크립트는 기본적으로 멈추지 않는다 — 마지막 커밋을
    출발점으로 삼고 무엇을 무시했는지 화면에 남긴 뒤 `WORKTREE`/`EXISTS` 로 계속 진행한다.
@@ -70,6 +87,18 @@ worktree 안으로 들어온 뒤 `.claude/agents/step-validator.md` 가 있는�
 `.claude/` 는 main 을 가리키는 심볼릭 링크이므로, 없다면 그 파일이 **git 에 커밋되지
 않았다는 뜻**이다 (`tools/link_shared.py` 가 `git ls-files` 로 공유 목록을 뽑는다). 같은 이유로
 `data/genesets/` 나 참조 스킬이 비어 있을 수도 있으니, 없는 것은 없다고 알린다.
+
+공유 경로가 실제로 이어져 있는지도 한 번 본다. 끊어진 링크가 있으면 이 worktree 가 옛
+저장소 구성으로 만들어졌다는 뜻이다.
+
+```bash
+find . -maxdepth 2 -type l ! -exec test -e {} \; -print   # 아무것도 안 나와야 한다
+ls tools/metrics_template.json data/genesets/                # 새 구성의 공유 경로
+```
+
+끊어진 링크가 나오면 0단계의 `--refresh` 선택지를 사용자에게 제시한다. 여기서 링크를
+직접 지우거나 다시 걸지 않는다 — 공유 경로 구성의 유일한 출처는 `worktree_init.sh` 다.
+분석 코드에서 없는 경로를 대신 만들어 쓰지도 않는다.
 
 Python 실행 환경도 `.venv/` 로 main 과 공유된다 (worktree_init.sh 가 별도 블록에서 심볼릭
 링크로 건다 — git 추적 대상이 아니라 위 `tools/link_shared.py` 목록에는 없다). 분석 코드는

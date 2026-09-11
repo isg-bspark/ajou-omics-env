@@ -45,7 +45,73 @@
         "jupyter.askForKernelRestart": false,
         "notebook.output.textLineLimit": 60,
         "files.autoSave": "afterDelay",
-        "terminal.integrated.defaultProfile.linux": "bash"
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.semanticHighlighting.enabled": true,
+        "editor.tokenColorCustomizations": {
+          "[Default Dark Modern]": {
+            "comments": "#A8C97F",
+            "strings": "#E2A96A",
+            "numbers": "#C9E88A",
+            "keywords": "#D98BD9",
+            "functions": "#7FD3F5",
+            "types": "#7FE0B0",
+            "variables": "#E8E8E8",
+            "textMateRules": [
+              {
+                "scope": [
+                  "meta.function-call.generic.python",
+                  "support.function.builtin.python"
+                ],
+                "settings": { "foreground": "#7FD3F5" }
+              },
+              {
+                "scope": [
+                  "variable.parameter",
+                  "variable.parameter.function-call.python"
+                ],
+                "settings": { "foreground": "#FFCC99" }
+              },
+              {
+                "scope": "storage.type.function.python",
+                "settings": { "foreground": "#D98BD9", "fontStyle": "bold" }
+              },
+              {
+                "scope": [
+                  "constant.language.python",
+                  "constant.other.caps"
+                ],
+                "settings": { "foreground": "#F58EA8" }
+              },
+              {
+                "scope": "punctuation.definition.decorator.python",
+                "settings": { "foreground": "#F2D96B" }
+              },
+              {
+                "scope": "entity.name.function.decorator.python",
+                "settings": { "foreground": "#F2D96B" }
+              }
+            ]
+          }
+        },
+        "editor.semanticTokenColorCustomizations": {
+          "[Default Dark Modern]": {
+            "enabled": true,
+            "rules": {
+              "variable": "#E8E8E8",
+              "variable.readonly": "#F58EA8",
+              "parameter": "#FFCC99",
+              "property": "#B9E6FF",
+              "function": "#7FD3F5",
+              "method": "#7FD3F5",
+              "class": "#7FE0B0",
+              "namespace": "#7FE0B0",
+              "module": "#7FE0B0",
+              "decorator": "#F2D96B",
+              "selfParameter": "#F58EA8",
+              "comment": "#A8C97F"
+            }
+          }
+        }
       }
     }
   },

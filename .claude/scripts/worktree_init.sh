@@ -11,6 +11,8 @@
 #   --mode <이름>     진행 방식 블록을 고른다 (기본: <이름> 과 같다)
 #   --goal "..."      EXPERIMENT.md 의 목표 줄
 #   --strict-dirty    커밋되지 않은 변경이 있으면 멈추고 사용자에게 묻는다 (기본은 무시하고 진행)
+#   --refresh         이미 있는 worktree 를 현재 branch 최신 커밋으로 갱신한다
+#                     (공유 링크 재구성 + merge). 사용자가 명시적으로 고른 뒤에만 쓴다.
 #
 # 커밋되지 않은 변경은 기본적으로 무시하고 마지막 커밋을 출발점으로 진행한다 —
 # worktree 세팅 자체는 판단이 갈리는 지점이 아니므로 매번 사용자에게 묻지 않는다.
@@ -18,7 +20,12 @@
 #
 # 마지막 줄로 상태를 하나 출력한다. 호출자는 그 줄만 보고 분기하면 된다.
 #   ALREADY_IN_WORKTREE <절대경로>   이미 실험 worktree 안이다 — 세팅할 것이 없다
-#   EXISTS <절대경로>                그 이름의 worktree 가 이미 있다
+#   EXISTS <절대경로>                그 이름의 worktree 가 이미 있고 최신이다
+#   EXISTS <절대경로> STALE <n>      그 이름의 worktree 가 이미 있지만 현재 branch 보다
+#                                    n 커밋 뒤에 있다 — 공유 경로 구성(SHARED)이 그 사이에
+#                                    바뀌었으면 root 에 옛 파일·끊어진 링크가 남는다.
+#                                    호출자는 사용자에게 물어 --refresh 로 다시 부르거나,
+#                                    다른 이름으로 새로 만들거나, 그대로 진행한다.
 #   WORKTREE <절대경로>              새로 만들었다
 # --strict-dirty 를 쓴 상태에서 커밋되지 않은 변경을 만나면 exit 2 로 끝난다.
 set -euo pipefail
@@ -44,12 +51,14 @@ NAME=""
 MODE=""
 GOAL=""
 IGNORE_DIRTY=1
+REFRESH=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --mode)         MODE="${2:?--mode 뒤에 이름이 필요합니다}"; shift 2 ;;
     --goal)         GOAL="${2:?--goal 뒤에 문장이 필요합니다}"; shift 2 ;;
     --ignore-dirty) IGNORE_DIRTY=1; shift ;;   # 기본값과 같다 — 하위 호환용으로 남겨 둔다
     --strict-dirty) IGNORE_DIRTY=0; shift ;;
+    --refresh)      REFRESH=1; shift ;;
     -*)             echo "모르는 옵션입니다: $1" >&2; exit 1 ;;
     *)
       if [ -n "$NAME" ]; then
@@ -94,11 +103,63 @@ BRANCH="exp/$NAME"
 DIR="worktrees/$NAME"
 ABS="$ROOT_P/$DIR"
 
+BASE="$(git rev-parse --abbrev-ref HEAD)"
+HEAD_MAIN="$(git rev-parse HEAD)"
+
+# 끊어진 심볼릭 링크를 치운다. 옛 공유 목록으로 만들어진 worktree 에는 main 에서
+# 이미 옮겨진 파일(예: 루트의 setup.sh·verify.py)을 가리키는 링크가 남아 있다.
+prune_dead_links() {
+  local l
+  for l in "$1"/* "$1"/.[!.]*; do
+    if [ -L "$l" ] && [ ! -e "$l" ]; then
+      rm -f "$l"
+      echo "· 끊어진 링크 제거: ${l#$ROOT_P/}"
+    fi
+  done
+}
+
+# 이미 만들어 둔 worktree 를 현재 branch 최신 커밋으로 갱신한다.
+# 공유 경로는 skip-worktree + 심볼릭 링크 상태라 그대로는 merge 가 거부된다.
+# 그래서 링크를 먼저 걷어내고(--unlink) merge 한 뒤 새 공유 목록으로 다시 건다.
+refresh_worktree() {
+  echo "· 공유 링크를 걷어냅니다"
+  python3 "$ROOT/tools/link_shared.py" --unlink "$ROOT" "$ROOT/$DIR" "${SHARED[@]}"
+  echo "· $BASE 를 $BRANCH 에 merge 합니다"
+  if ! git -C "$DIR" merge --no-edit "$BASE"; then
+    echo
+    echo "✗ merge 가 끝나지 않았습니다. 충돌을 해결한 뒤 아래를 실행해 공유 링크를 다시 거세요."
+    echo "    git -C $DIR commit          # 충돌 해결 후"
+    echo "    bash .claude/scripts/worktree_init.sh $NAME --refresh"
+    exit 3
+  fi
+  python3 "$ROOT/tools/link_shared.py" "$ROOT" "$ROOT/$DIR" "${SHARED[@]}"
+  python3 "$ROOT/tools/link_shared.py" --link "$ROOT" "$ROOT/$DIR" "${SHARED[@]}"
+  prune_dead_links "$ROOT_P/$DIR"
+  echo "✓ $DIR 를 $BASE 최신 커밋으로 갱신했습니다"
+}
+
 # 이미 있으면 그대로 쓴다. 여기서는 dirty 여부를 따지지 않는다 —
-# 만들 때 이미 출발점이 정해졌고, 지금 main 의 상태는 이 worktree 와 무관하다.
+# 만들 때 이미 출발점이 정해졌고, 지금 main 의 커밋되지 않은 변경은 이 worktree 와 무관하다.
+# 다만 만든 뒤 main 이 앞서 나갔는지는 본다. 공유 경로 목록(SHARED)이나 디렉토리 구조가
+# 그 사이에 바뀌었으면 이 worktree 는 옛 구성 그대로 남아 있기 때문이다.
 if [ -e "$DIR" ]; then
+  if [ "$REFRESH" -eq 1 ]; then
+    echo "· $DIR 이미 있습니다 — 갱신합니다 (--refresh)"
+    refresh_worktree
+    echo "EXISTS $ABS"
+    exit 0
+  fi
   echo "· $DIR 이미 있습니다 — 그대로 씁니다"
-  echo "EXISTS $ABS"
+  if git -C "$DIR" merge-base --is-ancestor "$HEAD_MAIN" HEAD 2>/dev/null; then
+    echo "EXISTS $ABS"
+    exit 0
+  fi
+  BEHIND="$(git -C "$DIR" rev-list --count "HEAD..$HEAD_MAIN" 2>/dev/null || echo 0)"
+  echo "· 다만 이 worktree 의 branch($BRANCH) 는 $BASE 보다 $BEHIND 커밋 뒤에 있습니다."
+  echo "  그 사이에 공유 파일의 위치가 바뀌었다면 이 worktree 의 root 에는 옛 파일과"
+  echo "  끊어진 링크가 그대로 남아 있습니다. 갱신하려면:"
+  echo "      bash .claude/scripts/worktree_init.sh $NAME --refresh"
+  echo "EXISTS $ABS STALE $BEHIND"
   exit 0
 fi
 
@@ -122,7 +183,6 @@ elif [ -n "$DIRTY" ]; then
   echo "$DIRTY" | sed 's/^/    /'
 fi
 
-BASE="$(git rev-parse --abbrev-ref HEAD)"
 mkdir -p worktrees
 
 # --- 실험별 설명 -----------------------------------------------------------

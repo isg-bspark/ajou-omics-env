@@ -31,19 +31,28 @@ worktree 두 개로 나눠 실행), Task/Objective/Dataset/Path 를 두 세션�
    ```
 3. **마지막 줄의 상태에 따라 분기한다** — `WORKTREE`/`EXISTS` 면 `EnterWorktree` 도구를
    `path: <경로>` 로 호출해 진입하고, `ALREADY_IN_WORKTREE` 면 그대로 1단계로 간다.
-   자세한 표와 커밋되지 않은 변경 처리 방식(기본은 무시하고 계속 진행, `--strict-dirty`
-   를 붙였을 때만 exit 2 로 멈춰 사용자에게 묻는다)은 `scrnaseq-plan-execute` 0단계에
-   있다 — 두 스킬의 세팅 절차는 실험 이름과 `--mode` 만 다르고 나머지는 동일하다.
+   `EXISTS <경로> STALE <n>` 이면 **진입하기 전에 멈추고** 세 선택지(`--refresh` 로 갱신 /
+   다른 이름으로 새로 / 그대로 진행)를 사용자에게 제시한다 — 그 worktree 가 옛 저장소
+   구성으로 만들어져 root 에 옛 파일과 끊어진 링크가 남고 `tools/` 같은 새 경로가 없는
+   상태라는 뜻이다. 자세한 표와 선택지 문구, 커밋되지 않은 변경 처리 방식(기본은 무시하고
+   계속 진행, `--strict-dirty` 를 붙였을 때만 exit 2 로 멈춰 사용자에게 묻는다)은
+   `scrnaseq-plan-execute` 0단계에 있다 — 두 스킬의 세팅 절차는 실험 이름과 `--mode` 만
+   다르고 나머지는 동일하다.
 
    이 스킬은 매 갈림길에서 사용자에게 묻는 방식이지만, **worktree 세팅은 갈림길이 아니다.**
-   위 절차는 묻지 않고 그대로 실행한다. 다만 사용자가 "worktree 없이 여기서 하자"고 하면
-   0단계를 건너뛰고 현재 디렉토리에서 진행한다.
+   위 절차는 묻지 않고 그대로 실행한다 (`STALE` 은 예외다 — 기존 실험을 어떻게 할지는
+   사용자가 정한다). 다만 사용자가 "worktree 없이 여기서 하자"고 하면 0단계를 건너뛰고
+   현재 디렉토리에서 진행한다.
 
 ## 0.5 전제 확인
 
 worktree 안으로 들어온 뒤 `.claude/agents/step-validator.md` 가 있는지 확인한다. 없으면
 사용자에게 알린다. `.claude/` 는 main 을 가리키는 심볼릭 링크이므로, 없다면 그 파일이
 git 에 커밋되지 않았다는 뜻이다.
+
+공유 경로가 끊어져 있지 않은지도 함께 본다 (`find . -maxdepth 2 -type l ! -exec test -e {} \; -print`
+가 아무것도 출력하지 않아야 하고, `tools/metrics_template.json` 이 읽혀야 한다).
+끊어진 링크가 나오면 0단계의 `--refresh` 선택지를 제시한다 — 링크를 직접 손보지 않는다.
 
 Python 실행 환경도 `.venv/` 로 main 과 공유된다. 분석 코드를 짜기 전에 `.venv/bin/python`
 에 scanpy·decoupler·celltypist 같은 패키지가 있는지 확인하고 그 인터프리터로 실행한다 —
