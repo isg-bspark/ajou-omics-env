@@ -1,0 +1,7 @@
+{
+  "NK_lab":        ["NKG7", "GNLY", "KLRD1", "KLRF1", "PRF1", "GZMB"],
+  "CD8_T_lab":     ["CD8A", "CD8B", "CD3D", "CD3E"],
+  "CD4_T_lab":     ["IL7R", "CCR7", "CD3D", "CD3E"],
+  "B_lab":         ["MS4A1", "CD79A", "CD79B"],
+  "CD14_mono_lab": ["CD14", "LYZ", "S100A8", "S100A9"]
+}

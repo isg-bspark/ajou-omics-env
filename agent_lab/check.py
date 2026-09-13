@@ -38,7 +38,9 @@ async def main() -> int:
                 print(f"  서버가 떴습니다.  도구 {len(tools)}개\n")
                 for t in tools:
                     first = (t.description or "").strip().split("\n")[0]
-                    print(f"    · {t.name}  —  {first}")
+                    schema = t.model_dump(by_alias=True).get("inputSchema") or {}
+                    params = ", ".join(schema.get("properties", {}).keys())
+                    print(f"    · {t.name}({params})  —  {first}")
                 print("\n  점검 통과\n")
                 return 0
     except Exception as e:

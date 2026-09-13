@@ -40,3 +40,10 @@ agent_lab/INSTRUCTOR.md
 
 # 편집기 임시 파일
 *.swp
+
+# 2일차 1교시 실습 (agent_lab · PART 3) — 실행 중 생성물 · 학생이 만드는 파일 · 강사 파일
+out/
+agent_lab/lab_mcp.py
+agent_lab/INSTRUCTOR_PART3.md
+rehearsal/
+.claude/skills/scanpy/

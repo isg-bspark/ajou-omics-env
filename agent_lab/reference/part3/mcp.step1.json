@@ -1,0 +1,6 @@
+{
+  "mcpServers": {
+    "biomcp": { "type": "stdio", "command": "biomcp", "args": ["run"] },
+    "ols":    { "type": "http",  "url": "https://www.ebi.ac.uk/ols4/api/mcp" }
+  }
+}
