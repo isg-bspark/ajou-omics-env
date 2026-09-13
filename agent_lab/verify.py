@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""환경 점검 — 2일차 1교시(agent_lab · PART 3) 실습 전에 한 번 돌립니다.
+"""환경 점검 — 2일차 1교시 실습(agent_lab) 전에 한 번 돌립니다.
 
     python3 agent_lab/verify.py
 
@@ -50,7 +50,7 @@ def gh_version():
 
 
 def main() -> int:
-    print("\n환경 점검 — 2일차 1교시 (agent_lab · PART 3)\n")
+    print("\n환경 점검 — 2일차 1교시 실습 (agent_lab)\n")
 
     v = sys.version_info
     check("Python 3.11 이상", v >= (3, 11), f"{v.major}.{v.minor}.{v.micro}",

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PART 3 (2일차 1교시 · 30분) 시작 상태 만들기 + 환경 점검
+# 2일차 1교시 실습 (30분) 시작 상태 만들기 + 환경 점검
 #   bash agent_lab/part3_setup.sh              # 시작 상태로 되돌리고 점검
 #   bash agent_lab/part3_setup.sh --with-skill # gh skill install 이 안 될 때: 저장소 사본으로 scanpy 스킬 설치
 #
@@ -9,7 +9,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"; cd "$ROOT"
 WITH_SKILL=0; [ "${1:-}" = "--with-skill" ] && WITH_SKILL=1
 
 echo "════════════════════════════════════════"
-echo "  PART 3 · 시작 상태 만들기"
+echo "  2일차 1교시 실습 · 시작 상태 만들기"
 echo "════════════════════════════════════════"
 
 # ① .mcp.json 은 비운다 — ②에서 학생이 biomcp·ols·lab-mcp 를 직접 넣는다 (2교시도 빈 상태에서 시작)

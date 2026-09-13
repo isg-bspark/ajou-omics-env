@@ -1,4 +1,4 @@
-# PART 3 · 기존 Skill과 MCP를 내 워크플로우에 맞게 변형하기 (30분)
+# 2일차 1교시 실습 · 기존 Skill과 MCP를 내 워크플로우에 맞게 변형하기 (30분)
 
 > 전체 실습 환경 안내는 [README.md](README.md) 를, 2교시는 [README_omicslab.md](README_omicslab.md) 를 보세요.
 
@@ -96,7 +96,7 @@ NK 세포 마커로 NKG7 을 쓰려고 해. 우리 랩 기준으로 NKG7 이 세
 **변형** — 그 기준을 담은 **내 서버를 만든다.** 새 파일 `agent_lab/lab_mcp.py` 를 만들고 아래를 **전체 그대로** 넣는다 (`cp agent_lab/reference/part3/lab_mcp.py agent_lab/lab_mcp.py` 로 가져와도 된다).
 ```python
 """
-lab-mcp — 우리 랩 MCP 서버  (PART 3 ②에서 학생이 직접 만들어 연결합니다)
+lab-mcp — 우리 랩 MCP 서버  (1교시 실습 ②에서 학생이 직접 만들어 연결합니다)
 
 함수 하나가 도구 하나입니다. docstring 이 곧 Claude 가 읽는 도구 설명입니다.
 남의 서버(BioMCP)의 범용 문헌 검색을 우리 연구 질문에 맞는 전용 도구로 감쌉니다.
