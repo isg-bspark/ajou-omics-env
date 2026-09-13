@@ -16,6 +16,13 @@
       "Write(./.claude/skills/**)",
       "Write(./out/**)"
     ],
-    "deny": []
+    "deny": [
+      "mcp__biomcp__trial_*",
+      "mcp__biomcp__variant_*",
+      "mcp__biomcp__openfda_*",
+      "mcp__biomcp__nci_*",
+      "mcp__biomcp__alphagenome_predictor",
+      "mcp__biomcp__think"
+    ]
   }
 }

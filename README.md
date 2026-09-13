@@ -5,7 +5,7 @@ GitHub Codespaces 에서 클릭 몇 번으로 실습 환경이 그대로 열리�
 
 | 교시 | 무엇을 하나 | 안내서 |
 | --- | --- | --- |
-| **2일차 1교시** | MCP 로 도구를 붙이고 고치고, SKILL 로 일하는 방식을 코드 자산으로 만들어 배포 | [README_agentlab.md](README_agentlab.md) |
+| **2일차 1교시** | 남의 MCP·SKILL 을 내 연구 방식에 맞게 **변형** — QC 기준·마커 근거 도구·라벨 검증 워크플로우 | [README_agentlab.md](README_agentlab.md) |
 | **2일차 2교시** | 실제 single-cell RNA-seq 데이터로 QC 부터 기능 분석까지, 병렬 실험으로 비교 | [README_omicslab.md](README_omicslab.md) |
 
 ## 환경 설정
@@ -15,7 +15,6 @@ GitHub Codespaces 에서 클릭 몇 번으로 실습 환경이 그대로 열리�
 저장소 오른쪽 위 **Fork ▸ Create fork** 를 눌러 **내 계정으로 사본**을 만듭니다.
 
 실습 중에 파일을 고치고 커밋하게 되므로 원본이 아니라 내 사본에서 작업해야 합니다.
-1교시 5단계(스킬을 GitHub 에 배포)도 내 계정이 있어야 진행됩니다.
 
 fork 가 끝나면 주소가 `github.com/<내ID>/...` 로 바뀝니다.
 **아래 과정은 전부 이 fork 한 저장소에서 합니다.**

@@ -1,4 +1,6 @@
 # uvx 로 미리 받아둘 MCP 서버. 한 줄에 하나. # 주석·빈 줄 무시.
 #   sed -e 's/#.*//' -e '/^[[:space:]]*$/d' tools.txt | xargs -r -n1 uv tool install
-
-mcp-server-fetch
+#
+# 2일차 1교시 실습 ② — BioMCP (biomcp-python 0.7.3, 도구 36개).
+#   과학 스택과 섞이지 않게 uvx 격리 환경에 설치. .mcp.json 에서 "command":"biomcp","args":["run"] 로 붙는다.
+biomcp-python==0.7.3

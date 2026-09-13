@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-"""
-환경 점검 — 실습 전에 한 번 돌리세요.
+"""환경 점검 — 2일차 1교시 실습(agent_lab) 전에 한 번 돌립니다.
 
     python3 agent_lab/verify.py
 
-'환경' 만 봅니다. .mcp.json 은 실습에서 직접 채우므로 검사하지 않습니다.
+앞의 ✓ 항목이 준비되면 시작합니다. 뒤의 노란 · 는 있어도 됩니다.
 """
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -33,18 +31,18 @@ def reachable(url, timeout=8):
         urllib.request.urlopen(url, timeout=timeout)
         return True
     except urllib.error.HTTPError:
-        return True          # 응답이 왔으면 망은 열린 것
+        return True
     except Exception:
         return False
 
 
 def gh_version():
-    """(major, minor) 또는 None."""
     exe = shutil.which("gh")
     if not exe:
         return None
     try:
         out = subprocess.run([exe, "--version"], capture_output=True, text=True, timeout=8).stdout
+        import re
         m = re.search(r"gh version (\d+)\.(\d+)", out)
         return (int(m.group(1)), int(m.group(2))) if m else None
     except Exception:
@@ -52,49 +50,51 @@ def gh_version():
 
 
 def main() -> int:
-    print("\n환경 점검\n")
+    print("\n환경 점검 — 2일차 1교시 실습 (agent_lab)\n")
 
     v = sys.version_info
-    check("Python 3.10 이상", v >= (3, 10), f"{v.major}.{v.minor}.{v.micro}",
-          "Python 3.10 이상이 필요합니다 (mcp 패키지 요구사항)")
+    check("Python 3.11 이상", v >= (3, 11), f"{v.major}.{v.minor}.{v.micro}",
+          "Python 3.11 이상이 필요합니다")
 
     try:
         import importlib.metadata as md
-        check("mcp 패키지", True, f"v{md.version('mcp')}")
+        check("mcp 패키지 (내 서버 lab-mcp)", True, f"v{md.version('mcp')}")
     except Exception:
-        check("mcp 패키지", False, "없음", 'python3 -m pip install "mcp[cli]"')
+        check("mcp 패키지 (내 서버 lab-mcp)", False, "없음", 'pip install "mcp[cli]"')
+
+    try:
+        import importlib.metadata as md
+        check("scanpy (① QC)", True, f"v{md.version('scanpy')}")
+    except Exception:
+        check("scanpy (① QC)", False, "없음",
+              "이미지 리빌드가 필요합니다 (.devcontainer/requirements.txt)")
+
+    biomcp = shutil.which("biomcp")
+    check("biomcp 명령 (② 마커 근거)", biomcp is not None, biomcp or "PATH 에 없음",
+          "이미지 리빌드가 필요합니다 (.devcontainer/tools.txt 의 biomcp-python)", warn_only=True)
 
     claude = shutil.which("claude")
     check("claude 명령", claude is not None, claude or "PATH 에 없음",
-          "curl -fsSL https://claude.ai/install.sh | bash  후 새 터미널")
+          "post-create.sh 가 설치합니다. 새 터미널을 열어보세요")
 
-    # ── 실습 4단계(스킬 설치) 용 — gh 2.90+ 또는 node(npx) 중 하나면 됩니다 ──
     gv = gh_version()
     gh_ok = gv is not None and gv >= (2, 90)
-    check("gh 2.90+  (실습 4 · 스킬)", gh_ok,
-          (f"v{gv[0]}.{gv[1]}" if gv else "없음"),
-          "gh 2.90+ 가 있으면 gh skill 을 씁니다. 없으면 아래 node(npx) 로도 됩니다",
+    check("gh 2.90+ (① gh skill install)", gh_ok, (f"v{gv[0]}.{gv[1]}" if gv else "없음"),
+          "gh 2.90+ 가 있으면 gh skill 을 씁니다. 없으면 part3_setup.sh --with-skill 로도 됩니다",
           warn_only=True)
 
-    node = shutil.which("node")
-    check("node / npx  (실습 4 대체 경로)", node is not None, node or "없음",
-          "gh 2.90+ 가 없을 때 'npx skills add …' 로 설치합니다",
-          warn_only=True)
+    check("바깥 인터넷 (②③ · OLS)", reachable("https://www.ebi.ac.uk/ols4/api/mcp"), "",
+          "네트워크 정책일 수 있습니다. ③의 CL ID 는 손으로 채워도 됩니다", warn_only=True)
 
-    if not gh_ok and node is None:
-        warns.append("실습 4단계 준비\n      → gh 2.90+ 또는 node 중 하나는 있어야 스킬을 설치합니다")
+    data = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "pbmc3k_mini.h5ad")
+    check("data/pbmc3k_mini.h5ad", os.path.exists(data),
+          f"{os.path.getsize(data)//1024} KB" if os.path.exists(data) else "없음",
+          "git pull 로 받아오세요")
 
-    check("바깥 인터넷 (실습 3 · OLS)",
-          reachable("https://www.ebi.ac.uk/ols4/api/mcp"), "",
-          "네트워크 정책일 수 있습니다. 실습 3의 원격 부분은 건너뛰어도 됩니다",
-          warn_only=True)
-
-    env_key = os.environ.get("ANTHROPIC_API_KEY")
+    env_key = os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("CLAUDE_CODE_OAUTH_TOKEN")
     logged_in = os.path.exists(os.path.expanduser("~/.claude.json"))
     check("Claude Code 인증", bool(env_key or logged_in),
-          "ANTHROPIC_API_KEY 있음" if env_key
-          else "설정 파일 있음 — 첫 실행 때 확인됩니다" if logged_in
-          else "아직 없음 — claude 를 실행하면 안내가 나옵니다",
+          "환경변수 있음" if env_key else "설정 파일 있음" if logged_in else "아직 없음",
           "claude 를 실행하고 안내를 따르세요", warn_only=True)
 
     print()
@@ -108,7 +108,7 @@ def main() -> int:
             print("  •", f)
         print()
         return 1
-    print("\033[32m준비 완료.  README_agentlab.md 의 1단계로 가세요.\033[0m\n")
+    print("\033[32m준비 완료.  README_agentlab.md 의 ① 로 가세요.\033[0m\n")
     return 0
 
 
