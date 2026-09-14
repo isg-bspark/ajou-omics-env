@@ -100,11 +100,21 @@ ls tools/metrics_template.json data/genesets/                # 새 구성의 공
 직접 지우거나 다시 걸지 않는다 — 공유 경로 구성의 유일한 출처는 `worktree_init.sh` 다.
 분석 코드에서 없는 경로를 대신 만들어 쓰지도 않는다.
 
-Python 실행 환경도 `.venv/` 로 main 과 공유된다 (worktree_init.sh 가 별도 블록에서 심볼릭
-링크로 건다 — git 추적 대상이 아니라 위 `tools/link_shared.py` 목록에는 없다). 분석 코드는
-`.venv/bin/python`(또는 그 안의 `pip show scanpy` 등)으로 scanpy·decoupler·celltypist 같은
-패키지가 있는지 먼저 확인하고, 있으면 그 인터프리터로 실행한다. `.venv/` 가 아예 없거나
-패키지가 비어 있으면 그것도 없다고 알린다 — 대신 새 가상환경을 만들어 설치하지 않는다
+Python 실행 환경은 **컨테이너에 이미 설치된 것을 그대로 쓴다.** 실습 환경(Codespace /
+devcontainer)에서는 `.devcontainer/post-create.sh` 가 컨테이너의 시스템 python 에
+scanpy·decoupler·celltypist 를 설치해 두므로, worktree 안에서도 그냥 `python` 을 부르면
+된다 — 가상환경은 없는 것이 정상이다. 저장소 루트에 `.venv/` 가 있는 환경(로컬 main 등)
+이라면 worktree_init.sh 가 그것을 심볼릭 링크로 공유하므로 `.venv/bin/python` 을 쓴다.
+
+분석 코드를 짜기 전에 어느 인터프리터를 쓸지 한 번 확인한다.
+
+```bash
+[ -x .venv/bin/python ] && PY=.venv/bin/python || PY=python
+$PY -c "import scanpy, anndata; print(scanpy.__version__)"
+$PY -m pip show decoupler celltypist 2>/dev/null | grep -E '^(Name|Version)'
+```
+
+필요한 패키지가 없으면 없다고 알린다 — 새 가상환경을 만들어 따로 설치하지 않는다
 (다른 실험과 실행 환경이 달라지면 결과 차이의 원인을 알 수 없게 된다).
 
 ## 1. Task / Objective / Dataset / Path 를 채운다
@@ -172,6 +182,18 @@ R6  annotation·DEG·기능분석 단계의 그림을 그리기 전에 `scrnaseq
     조건 DEG 패널(pre-integration UMAP + volcano)을 구분해서 그린다. 기능 분석은
     pathway 활성 scatter(비보정 UMAP)와 ctrl/stim 구분 stacked violin을 추가로 그리고,
     그림 텍스트에 한글 폰트 깨짐이 없게 한다.
+R7  REPORT 단계는 `references/report.md` 를 읽고 그 규격대로 만든다. 리포트는
+    results/summary/report.html 에 쓰고, `python tools/build_report.py` 로 그림을
+    본문에 박은 report_standalone.html 을 함께 만든 뒤, 사용자에게 **우클릭 →
+    Show Preview 로 연다**는 안내를 경로와 함께 준다. Codespace 웹 편집기는 .html 을
+    소스 코드로만 보여주므로, 경로만 알려주면 리포트를 못 본 것과 같다.
+R8  단계별 산출물은 `results/` · `figures/` 의 **번호 붙은 단계 디렉토리**에 쓴다 —
+    `01_qc` · `02_normalization` · `03_integration` · `04_clustering` · `05_annotation` ·
+    `06_deg` · `07_functional`. 번호는 파이프라인 순서를 디렉토리 목록만으로 알 수 있게
+    하기 위한 것이므로, 단계를 빼거나 더해도 순서만 맞추면 된다. 단계에 속하지 않는
+    `results/validation/` 과 `results/summary/` 에는 번호를 붙이지 않는다.
+    같은 단계의 표·수치는 `results/<번호>_<단계>/`, 그림은 `figures/<번호>_<단계>/` 로
+    짝을 맞춘다. 이미 `CLAUDE.md` 에 다른 구조가 적혀 있으면 그쪽을 따른다.
 ```
 
 `metrics.json` 키는 `tools/metrics_template.json` 이 있으면 그 이름을 그대로 쓴다.
@@ -216,6 +238,7 @@ resolution 선택 근거, pseudobulk 표본 단위, 조건 대비를 위한 표/
 ```bash
 ls results/validation/            # 채점한 단계 수만큼 .md 가 있는가
 ls results/summary/metrics.json   # 있는가
+ls results/summary/                # report.html 과 report_standalone.html 이 둘 다 있는가 (R7)
 ```
 
 `results/validation/` 이 비어 있거나 파일 수가 채점한 단계 수보다 적으면 R4 를 어긴

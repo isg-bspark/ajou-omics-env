@@ -53,7 +53,7 @@ matplotlib 기본 백엔드가 `macosx`(네이티브 GUI)일 때, 터미널과 �
   ```
 
   또는 스크립트를 실행하는 셸에서 환경변수로 지정해도 된다: `MPLBACKEND=Agg
-  .venv/bin/python script.py`. 둘 중 하나만 있으면 충분하고, 스크립트 안에 넣는 쪽이
+  python script.py` (`.venv/` 가 있는 환경이면 `.venv/bin/python`). 둘 중 하나만 있으면 충분하고, 스크립트 안에 넣는 쪽이
   실행 방법(포그라운드/백그라운드, 어떤 셸)에 관계없이 항상 적용되므로 더 안전하다.
 - **이미 멈춘 경우 복구**: `ps aux | grep <script.py>`로 PID를 찾고, `ps -o
   pid,%cpu,time -p <PID>`를 두세 번 간격을 두고 찍어 TIME이 안 늘어나는 것을 확인한
@@ -101,7 +101,7 @@ annotation 단계의 그림은 **두 가지를 함께** 만든다. 하나는 "�
 - **양쪽 모두 같은 임베딩**을 쓴다 — clustering 을 수행한 그 임베딩, 즉
   **post-integration** UMAP 이다. 좌우가 서로 다른 좌표계면 대조 자체가 불가능하다.
 - 한 figure 안에 `plt.subplots(1, 2, ...)` 로 나란히 배치한다.
-- 파일명 예: `figures/annotation/cluster_vs_celltype_panel.png`.
+- 파일명 예: `figures/05_annotation/cluster_vs_celltype_panel.png`.
 
 ```python
 fig, axes = plt.subplots(1, 2, figsize=(15, 6))
@@ -149,8 +149,8 @@ annotation 이 끝나면 cluster 별로 marker 발현이 실제로 분리되는�
    dotplot 상에서 식별돼야 한다. 안 되면 근거 약한 클러스터로 표시하고 annotation 요약에
    남긴다(기존 `unassigned-weak` 관행 유지).
 
-파일명 예: `figures/annotation/dotplot_core_markers.png`(1차),
-`figures/annotation/dotplot_curated_markers.png`(2차, 필요시).
+파일명 예: `figures/05_annotation/dotplot_core_markers.png`(1차),
+`figures/05_annotation/dotplot_curated_markers.png`(2차, 필요시).
 
 ### 2-3. 결정 로그에 남길 것
 
@@ -180,7 +180,7 @@ DEG 는 목적이 다른 두 가지가 있고, **각각 다른 임베딩 위에�
   y=클러스터 내 평균발현 을 써도 되지만 -log10(padj) 를 축으로 쓰는 볼케이노 형태는
   안 된다.)
 - 왼쪽·오른쪽을 **한 figure 안에 나란히**(`plt.subplots(1, 2, ...)`) 배치한다.
-- 파일명 예: `figures/annotation/celltype_deg_panel.png`.
+- 파일명 예: `figures/05_annotation/celltype_deg_panel.png`.
 
 ### 3-2. 조건(ctrl vs stim) DEG 패널 — "조건 반응이 뚜렷한가"
 
@@ -199,9 +199,9 @@ DEG 는 목적이 다른 두 가지가 있고, **각각 다른 임베딩 위에�
   발현량을 색으로** 얹는다(`sc.pl.embedding(..., color="<gene>", cmap="YlOrRd")`).
   점 하나가 세포 하나이고, 색이 그 세포의 발현량이다.
 - 상위 유전자가 여러 개면 **유전자마다 임베딩 하나씩** 그리드로 배치한다
-  (`figures/deg/condition_deg_umap_topgenes.png` 계열).
-- 파일명 예: `figures/deg/condition_deg_panel.png` (조건 색 UMAP + 대표 유전자 발현 UMAP),
-  `figures/deg/condition_deg_umap_topgenes.png` (상위 유전자별 그리드).
+  (`figures/06_deg/condition_deg_umap_topgenes.png` 계열).
+- 파일명 예: `figures/06_deg/condition_deg_panel.png` (조건 색 UMAP + 대표 유전자 발현 UMAP),
+  `figures/06_deg/condition_deg_umap_topgenes.png` (상위 유전자별 그리드).
 
 > **ctrl 과 stim 을 좌우 패널로 쪼개지 않는다.** 두 조건의 세포를 **한 패널 안에 모두**
 > 그린다. pre-integration 임베딩은 이미 조건에 따라 세포를 공간적으로 갈라 놓으므로,
@@ -235,7 +235,7 @@ enrichment 표(상위 pathway 순위·점수)만으로는 그 pathway 가 실제
 - **ctrl 과 stim 세포를 한 패널에 모두 그린다** — 3-2 의 규칙과 같다. 조건별로 좌우
   패널을 나누지 않는다. 조건 간 활성 분포를 수치로 비교하는 일은 4-2 stacked violin 이
   맡는다(같은 celltype 안에서 ctrl/stim 을 나란히 놓는 것은 거기서 한다).
-- 파일명 예: `figures/functional/pathway_scatter_<pathway>.png`.
+- 파일명 예: `figures/07_functional/pathway_scatter_<pathway>.png`.
 
 ### 4-2. Ctrl vs Stim 구분 stacked violin plot
 
@@ -251,7 +251,7 @@ enrichment 표(상위 pathway 순위·점수)만으로는 그 pathway 가 실제
   한다 — celltype 만으로 묶고 조건을 안 나누면 이 그림의 목적을 못 채운다.
 - 여러 pathway 를 한 그림에 stack 해도 되고(변수=pathway, groupby=celltype_stim), pathway
   하나당 그림 하나로 나눠도 된다 — 어느 쪽이든 ctrl/stim 구분이 보이면 된다.
-- 파일명 예: `figures/functional/pathway_stacked_violin.png`.
+- 파일명 예: `figures/07_functional/pathway_stacked_violin.png`.
 
 ### 4-3. 결정 로그에 남길 것
 

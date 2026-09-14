@@ -54,9 +54,16 @@ git 에 커밋되지 않았다는 뜻이다.
 가 아무것도 출력하지 않아야 하고, `tools/metrics_template.json` 이 읽혀야 한다).
 끊어진 링크가 나오면 0단계의 `--refresh` 선택지를 제시한다 — 링크를 직접 손보지 않는다.
 
-Python 실행 환경도 `.venv/` 로 main 과 공유된다. 분석 코드를 짜기 전에 `.venv/bin/python`
-에 scanpy·decoupler·celltypist 같은 패키지가 있는지 확인하고 그 인터프리터로 실행한다 —
-없다고 새 가상환경을 만들지 않는다. 자세한 이유는 `scrnaseq-plan-execute` 0.5단계에 있다.
+Python 실행 환경은 컨테이너에 이미 설치된 것을 그대로 쓴다. 실습 환경(Codespace /
+devcontainer)에서는 시스템 `python` 에 scanpy·decoupler·celltypist 가 설치되어 있고,
+`.venv/` 가 있는 환경(로컬 main 등)에서는 worktree 가 그것을 공유하므로 `.venv/bin/python`
+을 쓴다. 분석 코드를 짜기 전에 어느 쪽인지 한 번 확인하고
+(`[ -x .venv/bin/python ] && PY=.venv/bin/python || PY=python`), 패키지가 없으면 없다고
+알린다 — 새 가상환경을 만들지 않는다. 자세한 이유는 `scrnaseq-plan-execute` 0.5단계에 있다.
+
+단계별 산출물 경로도 `scrnaseq-plan-execute` 의 R8 을 그대로 따른다 — `results/01_qc/` ~
+`results/07_functional/` 과 같은 이름의 `figures/` 하위 디렉토리에 짝을 맞춰 쓰고,
+`results/validation/` 과 `results/summary/` 에는 번호를 붙이지 않는다.
 
 ## 1. Task / Objective / Dataset / Path 를 채운다
 
@@ -77,6 +84,12 @@ DEG·기능분석 단계의 그림은 `scrnaseq-visualization-spec` 스킬을 �
 위에 그리는 것, 기능 분석의 pathway 활성 scatter·ctrl/stim 구분 stacked violin, 한글
 폰트 깨짐 방지)을 따른다. 이 단계는 진행 방식(단계별 개입)과 무관하게 두 스킬 모두
 동일하게 지킨다.
+
+REPORT 단계도 마찬가지로 `scrnaseq-plan-execute` 의 `references/report.md` 규격을 그대로
+따른다 — `results/summary/report.html` 에 쓰고, `python tools/build_report.py` 로 그림을
+본문에 박은 `report_standalone.html` 을 함께 만든 뒤, **우클릭 → Show Preview 로 연다**는
+안내를 경로와 함께 준다. Codespace 웹 편집기는 `.html` 을 소스 코드로만 보여주므로 경로만
+알려주면 학생은 리포트를 못 본다.
 
 ## 3. 진행 방식 — 여기가 plan-execute 와 다른 지점
 
@@ -109,3 +122,6 @@ Claude 가 고른 것을 `decided_by` 로 구분해서 보여준다. 채점을 �
 정리하기 전에 `ls results/validation/` 로 **채점을 돌린 단계 수만큼 `.md` 가 실제로
 있는지** 확인한다. 모자라면 대화에 남아 있는 채점을 지금 옮겨 적고, 이미 사라졌으면 그
 단계를 다시 채점한다 — 기억으로 점수를 지어내지 않는다.
+
+REPORT 까지 갔다면 `ls results/summary/` 로 `report.html` 과 `report_standalone.html` 이
+둘 다 있는지 확인하고, 여는 법(우클릭 → Show Preview)을 다시 한 번 안내한다.

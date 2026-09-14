@@ -127,6 +127,25 @@ claude
 그대로 함께 쓰고, 각 실험이 만드는 스크립트 · 중간 데이터 · 결과 · 그림만
 실험별로 따로 쌓입니다. 끝난 뒤 두 쪽의 판단이 어디서 갈렸는지 비교해 보세요.
 
+## 리포트 보는 법
+
+분석이 끝나면 리포트가 두 개 만들어집니다. 둘 다 같은 내용이고, 쓰는 자리가 다릅니다.
+
+| 파일 | 어떻게 보나 |
+| --- | --- |
+| `results/summary/report.html` | 왼쪽 파일 목록에서 **우클릭 → Show Preview**. 편집기 탭 안에서 바로 열립니다 |
+| `results/summary/report_standalone.html` | **우클릭 → Download** 로 내려받아 브라우저에서 엽니다. 제출·공유용 |
+
+파일을 그냥 클릭하면 `<html>` 같은 태그 덩어리가 보입니다 — 리포트가 깨진 게 아니라,
+Codespace 편집기가 `.html` 을 소스 코드로 열었을 뿐입니다. **우클릭 → Show Preview** 로
+여세요.
+
+내려받을 때는 반드시 `report_standalone.html` 쪽을 받습니다. 다른 쪽은 그림을 옆 폴더에서
+불러오기 때문에, 파일 하나만 내려받으면 그림이 전부 깨집니다.
+
+병렬 실험을 돌렸다면 리포트는 저장소 루트가 아니라 각 실험 폴더
+(`worktrees/<실험이름>/results/summary/`) 안에 있습니다.
+
 ## 참고 문헌
 
 Kang HM, Subramaniam M, Targ S, et al. **Multiplexed droplet single-cell RNA-sequencing using

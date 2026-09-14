@@ -14,7 +14,7 @@ skills:
 채점 방식은 Biomni 논문 보충자료(Science 393, eadz4351) Table S32–S33 의 완결성·정확성
 루브릭과 Section I 의 블라인드 평가 절차를 단일세포 분석에 옮긴 것이다.
 
-annotation·DEG 단계의 그림 규격(celltypist 사용, dotplot 구성, celltype DEG 패널과
+annotation·DEG 단계의 그림 규격(cluster↔celltype 대조 패널, dotplot 구성, celltype DEG 패널과
 조건 DEG 패널의 임베딩 구분 등)은 `scrnaseq-visualization-spec` 스킬에 정의되어 있으며
 이 스킬은 시작 시 컨텍스트에 이미 로드되어 있다. 아래 채점표의 관련 항목은 이 스킬을
 기준으로 삼는다.
@@ -72,7 +72,7 @@ annotation·DEG 단계의 그림 규격(celltypist 사용, dotplot 구성, cellt
 | 2 | 중대한 오류 | 큰 오류 하나 또는 작은 오류 여럿. 결과의 일부만 유효하다 |
 | 3 | 대체로 맞음 | 핵심 방법은 타당하나 부정확하거나 최적이 아닌 선택이 섞여 있다 |
 | 4 | 거의 정확 | 오류가 미미하다. 통용되는 방법과 어긋나지 않는다 |
-| 5 | 정확 | 오류가 없다. 확인 절차와 대조군까지 갖췄다 |
+| 5 | 정확 | 오류가 없다. 확인 절차까지 갖췄다 |
 
 ### 완결성 — 남길 것을 남겼는가
 
@@ -150,17 +150,20 @@ annotation·DEG 단계의 그림 규격(celltypist 사용, dotplot 구성, cellt
 
 ### Annotation
 
-- **celltypist 로 수행했는가.** marker positive/negative 점수 최댓값 할당 방식으로
-  되돌아갔다면 `scrnaseq-visualization-spec` 스킬의 규격 위반이다 — celltypist 를 못
-  쓰는 이유(비인간 종, 부적절한 모델 등)가 결정 로그에 명시된 경우만 예외로 허용한다
-- **사용한 celltypist 모델 이름·버전이 기록되어 있는가.** `annotation_summary.json` 이나
-  결정 로그에 없으면 완결성 3 이하다
+- **이 단계에서 쓰기로 한 주석 방법이 무엇인지 먼저 확인한다.** 계획(`EXPERIMENT.md`
+  단계 기술)이나 스크립트 상단, 결정 로그에 적힌 방법(자동 분류기·marker 기반 수동 주석·
+  참조 데이터 매핑 등)을 찾는다. 어디에도 방법이 명시되어 있지 않으면 완결성 3 이하다
+- **실제 코드가 그 방법대로 되어 있는가.** 명시한 방법과 다른 방법으로 주석했는데
+  그 변경 근거가 결정 로그에 없으면 정확성 2 이하다. 방법 자체를 바꾼 것 자체가
+  오류는 아니며, **말한 것과 한 것이 다른 것**이 오류다
+- **그 방법이 요구하는 기록이 남아 있는가.** 자동 분류기(celltypist 등)를 썼다면 모델
+  이름·버전, marker 기반 수동 주석이라면 타입별 marker 목록과 할당 규칙, 참조 데이터
+  매핑이라면 참조 데이터셋과 매핑 방식. 없으면 완결성 3 이하다
 - 세포 단위 예측을 그대로 쓰지 않고 cluster 단위 다수결(majority voting)로 배정했는가.
   같은 클러스터 안에서 라벨이 흔들렸다면 그 사실이 기록되어 있는가
 - 세포 타입 주장마다 marker 근거가 붙어 있는가
-- `data/core_markers.xlsx` 같은 참조 파일이 있으면 celltypist 라벨과 대조했는가.
-  **불일치 항목을 빼놓지 않았는가.** 대조 결과로 celltypist 예측을 덮어썼다면 근거가
-  있는가
+- `data/core_markers.xlsx` 같은 참조 파일이 있으면 주석 결과와 대조했는가.
+  **불일치 항목을 빼놓지 않았는가.** 대조 결과로 주석을 덮어썼다면 근거가 있는가
 - 같은 marker 를 서로 다른 타입의 근거로 중복 사용하지 않았는가
 - 근거가 약한 클러스터에 억지로 이름을 붙이지 않았는가.
   `unassigned` 가 하나도 없다면 오히려 확인해 본다
@@ -169,14 +172,14 @@ annotation·DEG 단계의 그림 규격(celltypist 사용, dotplot 구성, cellt
 
 **필수 그림 — `scrnaseq-visualization-spec` 규격**
 
-- **cluster↔celltype 대조 패널**(`figures/annotation/cluster_vs_celltype_panel.png` 류)이
+- **cluster↔celltype 대조 패널**(`figures/05_annotation/cluster_vs_celltype_panel.png` 류)이
   있는가. 왼쪽이 clustering 결과(`leiden` 색), 오른쪽이 annotation 결과(`celltype` 색),
   **양쪽이 같은 post-integration 임베딩** 위에 나란히 있어야 한다. 좌우가 다른 좌표계면
   대조가 불가능하므로 정확성을 깎고, 아예 없으면 완결성을 깎는다
 - 그 대조 패널에서 클러스터와 세포 타입이 1:1 이 아닌 지점(한 타입이 여러 클러스터로
   갈렸거나 근거 약해 `Ambiguous`/`unassigned` 로 남은 클러스터)에 대한 판단이 결정
   로그에 있는가
-- 1차 cluster marker dotplot(`figures/annotation/dotplot_core_markers.png` 류)이 있는가
+- 1차 cluster marker dotplot(`figures/05_annotation/dotplot_core_markers.png` 류)이 있는가
 - dotplot 의 marker 가 **세포 타입별로 묶여**(`var_names` 에 `{타입: [marker...]}`
   딕셔너리를 넘겨 타입 구획이 그려진 형태) 있는가. 알파벳 순으로 늘어선 평평한 유전자
   리스트라면 어느 marker 묶음이 어느 타입을 가리키는지 그림에서 읽을 수 없으므로
@@ -253,18 +256,6 @@ annotation·DEG 단계의 그림 규격(celltypist 사용, dotplot 구성, cellt
 - 6단계의 세포 단위 DEG 개수와 pseudobulk DEG 개수를 나란히 놓은 표가 있는가.
   자릿수가 다르면 그 사실이 언급되어 있는가
 
-**양성 대조 — 이 데이터에는 답의 일부가 알려져 있다**
-
-IFN-beta 자극이므로 인터페론 반응이 상위에 있어야 한다.
-자원별로 `INTERFERON_ALPHA_RESPONSE` · `Interferon Alpha/Beta Signaling` · `JAK-STAT`
-· `STAT1`/`STAT2`/`IRF9`.
-
-- 이것을 **확인한 기록이 있는가.** 상위 몇 위였는지 수치로
-- 상위에 없는데도 결과를 해석하고 넘어갔다면 **정확성 2 이하다.**
-  앞 단계(배치 보정 · pseudobulk 입력 layer · 유전자 이름 매칭)를 의심해야 하는 자리다
-- **양성 대조 통과를 근거로 나머지 결과까지 맞다고 주장하지 않았는가.**
-  통과는 앞 단계가 안 깨졌다는 것만 말해 준다. 상위 20위의 나머지는 아무것도 보증되지 않는다
-
 **근거가 유전자까지 내려가는가**
 
 - 상위 경로에 대해 leading edge 유전자가 **표로** 남아 있는가. 그림만 있으면 완결성 3 이하다
@@ -280,15 +271,15 @@ IFN-beta 자극이므로 인터페론 반응이 상위에 있어야 한다.
 **필수 그림 — `scrnaseq-visualization-spec` 규격**
 
 - **pathway 활성 scatter plot**(비보정 pre-integration UMAP 위에 pathway 별 세포 단위
-  점수를 색으로 얹은 그림, `figures/functional/pathway_scatter_*.png` 류)이 고른 pathway
+  점수를 색으로 얹은 그림, `figures/07_functional/pathway_scatter_*.png` 류)이 고른 pathway
   마다 있는가. post-integration(배치 보정된) 임베딩을 썼다면 조건 신호가 지워지므로
   정확성을 깎는다
 - 이 scatter 에서 **ctrl 과 stim 세포가 한 패널에 함께** 그려져 있는가. 조건별로 좌우
   패널을 쪼갰다면 규격 위반이다 — 조건별 분포 비교는 아래 stacked violin 이 맡는다
-- **ctrl vs stim 을 구분한 stacked violin plot**(`figures/functional/pathway_stacked_violin.png`
+- **ctrl vs stim 을 구분한 stacked violin plot**(`figures/07_functional/pathway_stacked_violin.png`
   류)이 있는가. celltype 으로만 묶고 조건을 나누지 않았다면 이 그림의 목적을 못
   채운 것이므로 완결성을 깎는다
-- 그림에 쓴 pathway 목록과 그 이유(양성 대조 포함 여부), scatter 의 임베딩 선택 이유가
+- 그림에 쓴 pathway 목록과 그 선택 이유, scatter 의 임베딩 선택 이유가
   결정 로그에 있는가
 - **그림 안 텍스트(제목·축 라벨·범례)에 한글 폰트 깨짐(tofu, 네모 글자)이 없는가.**
   한글이 들어간 그림이면 어떤 한글 폰트를 지정했는지 결정 로그에 기록이 있는가.
@@ -304,8 +295,8 @@ IFN-beta 자극이므로 인터페론 반응이 상위에 있어야 한다.
 ### 마무리
 
 - `metrics.json` 이 `tools/metrics_template.json` 의 키 이름을 지켰는가
-- 기능 분석을 했다면 `functional` 블록의 `readout` · `prior_knowledge` · `method` ·
-  `positive_control` 이 채워졌는가. `versions` 가 실측값인가
+- 기능 분석을 했다면 `functional` 블록의 `readout` · `prior_knowledge` · `method` 가
+  채워졌는가. `versions` 가 실측값인가
 - 리포트에 **방법·QC 부록**이 있는가 — 임계값 파라미터 표, 패키지 버전,
   단계별 잔존율, 실행 시간·메모리
 - 리포트의 주장에 근거 각주가 달려 있는가

@@ -252,11 +252,11 @@
   ],
   "artifacts": {
     "figures": [
-      "figures/qc/violin_qc.png",
-      "figures/clustering/umap_leiden.png"
+      "figures/01_qc/violin_qc.png",
+      "figures/04_clustering/umap_leiden.png"
     ],
     "tables": [
-      "results/deg/deg_per_celltype.csv"
+      "results/06_deg/deg_per_celltype.csv"
     ],
     "report": "results/summary/report.html"
   },
