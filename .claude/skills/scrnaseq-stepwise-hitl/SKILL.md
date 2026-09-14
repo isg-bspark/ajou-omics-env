@@ -68,6 +68,24 @@ devcontainer)에서는 시스템 `python` 에 scanpy·decoupler·celltypist 가 
 `figures/` 를 따로 만들지 않는다. `results/validation/` 과 `results/summary/` 에는
 번호를 붙이지 않는다.
 
+**분석 코드는 `scripts/` 에 파일로 저장한 뒤 그 파일을 실행한다**(`scrnaseq-plan-execute`
+의 R9 와 같다). heredoc(`python - <<EOF`)이나 `python -c` 로 즉석 실행하지 않는다 —
+단계마다 사용자가 고른 파라미터가 코드에 박혀 있는데, 인라인으로 돌리면 대화가 압축될 때
+무엇을 어떤 값으로 돌렸는지가 사라져 재현도 비교도 안 된다. 분석 코드든 그림 코드든 같고,
+예외는 데이터 확인용 한두 줄 조회(`adata.obs.columns` 출력 등)뿐이다.
+
+- 파일 이름은 결과 디렉토리와 짝을 맞춘다 — `scripts/01_qc.py` → `results/01_qc/`.
+- worktree 안에서는 **그 worktree 자신의 `scripts/`** 에 쓴다. `scripts/` 는 main 과
+  공유하는 심볼릭 링크가 아니라 실험 branch 에 체크아웃된 실제 디렉토리이므로, 상대 경로
+  `scripts/` 로 쓰면 main 을 건드리지 않고 실험별로 따로 남는다. `$ROOT/scripts/` 처럼
+  main 경로로 쓰지 않는다. 디렉토리가 없으면 만든다.
+- 실행은 작업 트리 루트에서 `$PY scripts/<파일>.py` 로 한다(`$PY` 는 위에서 정한
+  인터프리터). 스크립트 안의 입출력 경로도 루트 기준 상대 경로로 적는다.
+- 사용자가 파라미터를 바꿔 다시 돌려 달라고 하면 새 파일을 만들지 말고 **같은 파일을
+  고쳐** 다시 실행한다 — 남은 파일이 실제로 채택된 마지막 코드와 일치해야 한다. 후보
+  여러 개를 나란히 비교하는 경우(예: resolution 후보 4개)는 한 스크립트 안에서 돌리고,
+  최종 채택값을 그 파일에 남긴다.
+
 ## 1. Task / Objective / Dataset / Path 를 채운다
 
 `scrnaseq-plan-execute` 의 1단계와 같은 절차를 따른다 — 연구 질문(Task)은 0단계에서 받았고,
@@ -189,6 +207,7 @@ decoupler 2.2.0, celltypist 1.7.1). 제시 전에 달라졌을 수 있으니 한
 - `scrnaseq-visualization-spec` 의 그림 규격 — 어떤 임베딩 위에 무엇을 그릴지는 규격이
   정한다. 사용자가 고르는 것은 **분석 방법**이지 그림 형식이 아니다.
 - annotation 을 celltypist 로 한다는 것(모델 선택은 사용자가 한다)
+- 분석 코드를 `scripts/` 에 파일로 저장하고 그 파일을 실행한다는 것(0.5단계)
 
 ### 3-5. 주요 단계가 끝나면 — 그림은 규격 스킬을 호출해서 그린다
 
