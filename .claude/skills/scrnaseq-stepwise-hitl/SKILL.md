@@ -29,6 +29,7 @@ worktree 두 개로 나눠 실행), Task/Objective/Dataset/Path 를 두 세션�
    bash "$ROOT/.claude/scripts/worktree_init.sh" stepwise-hitl \
         --mode stepwise-hitl --goal "<1에서 확보한 연구 질문>"
    ```
+
 3. **마지막 줄의 상태에 따라 분기한다** — `WORKTREE`/`EXISTS` 면 `EnterWorktree` 도구를
    `path: <경로>` 로 호출해 진입하고, `ALREADY_IN_WORKTREE` 면 그대로 1단계로 간다.
    `EXISTS <경로> STALE <n>` 이면 **진입하기 전에 멈추고** 세 선택지(`--refresh` 로 갱신 /
@@ -117,6 +118,17 @@ REPORT 단계도 마찬가지로 `scrnaseq-plan-execute` 의 `references/report.
 배치 통합 단계에서는 다음을 반드시 사용자에게 되묻는다 — **조건 변수를 통계 검정의
 batch_key 로 보정할 것인가, 아니면 clustering/annotation 목적의 시각화용 임베딩에만
 보정을 걸고 통계 입력은 원본으로 남길 것인가.** 이 선택이 결과를 가장 크게 가른다.
+
+clustering 단계는 resolution 하나만 고정으로 쓰지 않는다. 최소 3~4개의 후보
+resolution(예: 0.3/0.5/0.8/1.0)으로 Leiden 을 각각 돌리고, `data/core_markers.xlsx` 같은
+참조 marker 파일이 있으면 그 positive/negative marker 로 resolution 마다 cluster marker
+dotplot 을 그린다(dotplot 형식은 `scrnaseq-visualization-spec` 의 2-1 을 따른다 — 세포
+타입별로 묶고 positive/negative 를 구분). 그 dotplot 들을 비교해서 "각 resolution 이 주요
+세포 타입을 얼마나 깨끗하게 분리하는지, 해상도를 올렸을 때 새로 갈리는 것이 의미 있는
+하위 타입인지 아니면 이미 분리된 타입의 불필요한 재분할인지"를 근거로 권장 resolution 을
+정리해 판단이 갈리는 지점으로 사용자에게 제시하고 선택받는다. 어느 세포 타입이 모든 후보
+resolution 에서 계속 한 클러스터로 뭉쳐 있었는지도 함께 보여준다 — 있다면 annotation
+단계에서 celltypist·서브클러스터링으로 별도 처리가 필요하다는 뜻이므로 결정 로그에 남긴다.
 
 annotation 단계에서는 celltypist 모델 선택(조직에 맞는 pretrained 모델이 여러 개거나
 불확실할 때)과, 1차 dotplot 만으로 cluster 구분이 충분한지 아니면 2차 축소 dotplot이
