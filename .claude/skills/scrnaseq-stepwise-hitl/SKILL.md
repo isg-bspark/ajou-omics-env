@@ -1,6 +1,6 @@
 ---
 name: scrnaseq-stepwise-hitl
-description: 단일세포 RNA-seq 분석을 한 단계씩 진행하며 판단이 갈리는 지점마다 멈춰 사용자에게 선택지를 제시하는 human-in-the-loop 방식으로 계획하고 실행한다. 연구 질문만 받아서 Task/Objective/Dataset/Path 를 코드베이스 탐색과 질문으로 채운 뒤, QC 부터 한 단계씩 진행하며 매 갈림길에서 승인을 받는다. scrnaseq-plan-execute 와 짝을 이루는 진행 방식이며, 자율 실행 대신 단계별 개입을 원할 때 쓴다. 트리거: "단계별로 물어보면서 분석해줘", "/scrnaseq-stepwise-hitl".
+description: '단일세포 RNA-seq 분석을 한 단계씩 진행하며 판단이 갈리는 지점마다 멈춰 사용자에게 선택지를 제시하는 human-in-the-loop 방식으로 계획하고 실행한다. 연구 질문만 받아서 Task/Objective/Dataset/Path 를 코드베이스 탐색과 질문으로 채운 뒤, QC 부터 한 단계씩 진행하며 매 갈림길에서 승인을 받는다. scrnaseq-plan-execute 와 짝을 이루는 진행 방식이며, 자율 실행 대신 단계별 개입을 원할 때 쓴다. 트리거: "단계별로 물어보면서 분석해줘", "/scrnaseq-stepwise-hitl".'
 ---
 
 이 스킬은 `scrnaseq-plan-execute` 와 **같은 형식**(Task/Objective/Dataset/Path, 8단계 구조,

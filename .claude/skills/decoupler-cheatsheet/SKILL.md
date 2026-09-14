@@ -1,6 +1,6 @@
 ---
 name: decoupler-cheatsheet
-description: decoupler 2.x (기능 분석 — GSEA·pathway·전사인자 활성 추정) API 참조와 이 환경에서 자주 틀리는 지점 요약. decoupler 코드를 짜기 전, 또는 1.x/2.x 함수 이름이 헷갈릴 때, 또는 pseudobulk·조건 대비 기능 분석을 설계할 때 이 스킬을 먼저 읽는다. 트리거: "decoupler", "GSEA", "pathway 분석", "전사인자 활성", "기능 분석".
+description: 'decoupler 2.x (기능 분석 — GSEA·pathway·전사인자 활성 추정) API 참조와 이 환경에서 자주 틀리는 지점 요약. decoupler 코드를 짜기 전, 또는 1.x/2.x 함수 이름이 헷갈릴 때, 또는 pseudobulk·조건 대비 기능 분석을 설계할 때 이 스킬을 먼저 읽는다. 트리거: "decoupler", "GSEA", "pathway 분석", "전사인자 활성", "기능 분석".'
 ---
 
 # decoupler 2.x · 기능 분석 API 요약

@@ -1,6 +1,6 @@
 ---
 name: scrnaseq-plan-execute
-description: 단일세포 RNA-seq 분석을 Biomni 형식(Task/Objective/Dataset/Path + 번호 붙은 단계 + 결정 로그 + step-validator 검증)으로 계획하고 실행한다. 연구 질문만 받아서 Task/Objective/Dataset/Path 를 코드베이스 탐색과 질문으로 채운 뒤, 체크박스 계획을 사용자 승인받고 끝까지 실행한다. 트리거: "단일세포 분석해줘", "scRNA-seq 분석", "/scrnaseq-plan-execute".
+description: '단일세포 RNA-seq 분석을 Biomni 형식(Task/Objective/Dataset/Path + 번호 붙은 단계 + 결정 로그 + step-validator 검증)으로 계획하고 실행한다. 연구 질문만 받아서 Task/Objective/Dataset/Path 를 코드베이스 탐색과 질문으로 채운 뒤, 체크박스 계획을 사용자 승인받고 끝까지 실행한다. 트리거: "단일세포 분석해줘", "scRNA-seq 분석", "/scrnaseq-plan-execute".'
 ---
 
 이 스킬은 매번 프롬프트를 복사-붙여넣기 하지 않고도 같은 형식의 분석을 시작할 수 있게

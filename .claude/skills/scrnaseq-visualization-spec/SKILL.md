@@ -1,6 +1,6 @@
 ---
 name: scrnaseq-visualization-spec
-description: scRNA-seq 분석의 annotation·DEG·기능 분석(GSEA·pathway) 단계에서 그림을 그리는 코드를 짜기 전에 읽는다. 어떤 그림을 어떤 임베딩 위에 그려야 하는지에 대한 규격이며, step-validator 는 이 규격으로 그림을 채점한다. 그림의 한글 텍스트가 깨질 때, 그림 그리는 스크립트가 에러 없이 멈출 때도 읽는다. 트리거: "annotation 그림", "DEG 그림", "dotplot", "scatter plot", "volcano plot", "GSEA 그림", "pathway 그림", "stacked violin", "한글 깨짐", "폰트 깨짐", "스크립트가 멈췄다", "그림 그리다가 멈춤".
+description: 'scRNA-seq 분석의 annotation·DEG·기능 분석(GSEA·pathway) 단계에서 그림을 그리는 코드를 짜기 전에 읽는다. 어떤 그림을 어떤 임베딩 위에 그려야 하는지에 대한 규격이며, step-validator 는 이 규격으로 그림을 채점한다. 그림의 한글 텍스트가 깨질 때, 그림 그리는 스크립트가 에러 없이 멈출 때도 읽는다. 트리거: "annotation 그림", "DEG 그림", "dotplot", "scatter plot", "volcano plot", "GSEA 그림", "pathway 그림", "stacked violin", "한글 깨짐", "폰트 깨짐", "스크립트가 멈췄다", "그림 그리다가 멈춤".'
 ---
 
 이 스킬은 8단계 scRNA-seq 파이프라인(`scrnaseq-plan-execute`/`scrnaseq-stepwise-hitl` 공용)에서
