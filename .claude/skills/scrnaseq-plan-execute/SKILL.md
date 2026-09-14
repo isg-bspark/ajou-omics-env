@@ -174,12 +174,22 @@ R4  각 단계가 끝나면 step-validator 서브에이전트를 부르고, 돌�
     results/validation/<번호>_<단계>.md 에 저장한 뒤 metrics.json 에 점수를 누적한다.
     저장하지 않고 다음 단계로 넘어가지 않는다 — 대화에만 있는 채점은 사라진다.
     FAIL 이면 다음으로 가지 말고 고친 뒤 다시 검증한다.
-R5  기능 분석(GSEA·pathway) 단계가 있다면 코드를 짜기 전에 `decoupler-cheatsheet`
-    스킬을 읽는다 — 이 환경의 decoupler 는 2.x 이고 1.x 와 함수 이름이 다르다.
+R5  분석 코드를 짜기 전에 그 단계를 다루는 스킬이 있으면 먼저 읽고 그 스킬의 방식대로
+    짠다 — 기억에 의존해 API 를 짐작하지 않는다.
+    · QC · 정규화/HVG · 차원축소 · clustering · 차등발현 · scanpy 그림 등 표준
+      scRNA-seq 파이프라인 작업은 `scanpy` 스킬이 있으면 **반드시 그 스킬을 읽고**
+      거기 적힌 함수·인자·순서를 따른다. Seurat/SingleCellExperiment RDS 를 h5ad 로
+      바꾸는 변환도 이 스킬을 따른다.
+    · 기능 분석(GSEA·pathway) 단계가 있다면 `decoupler-cheatsheet` 스킬을 읽는다 —
+      이 환경의 decoupler 는 2.x 이고 1.x 와 함수 이름이 다르다.
+    스킬끼리 충돌하면 **이 프로젝트 전용 스킬**(`scrnaseq-visualization-spec` 등)이
+    범용 스킬(`scanpy`)보다 우선한다. 어느 쪽을 따랐는지 결정 로그에 남긴다.
 R6  annotation·DEG·기능분석 단계의 그림을 그리기 전에 `scrnaseq-visualization-spec`
     스킬을 읽는다. annotation 은 celltypist 로 수행하고 cluster marker dotplot으로
-    분리도를 검증하며, DEG 그림은 celltype DEG 패널(post-integration UMAP + scatter)과
-    조건 DEG 패널(pre-integration UMAP + volcano)을 구분해서 그린다. 기능 분석은
+    분리도를 검증하며(참조 marker 파일에 negative marker 가 있으면 같이 그린다),
+    DEG 그림은 celltype DEG 패널(post-integration UMAP + marker 발현 UMAP)과
+    조건 DEG 패널(pre-integration UMAP + 조건 DEG 발현 UMAP)을 구분해서 그린다 —
+    양쪽 모두 "점 하나 = 세포 하나" 형태이고 volcano·MA plot 은 쓰지 않는다. 기능 분석은
     pathway 활성 scatter(비보정 UMAP)와 ctrl/stim 구분 stacked violin을 추가로 그리고,
     그림 텍스트에 한글 폰트 깨짐이 없게 한다.
 R7  REPORT 단계는 `references/report.md` 를 읽고 그 규격대로 만든다. 리포트는

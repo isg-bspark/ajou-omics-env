@@ -75,15 +75,22 @@ Path(입력·참조·작업 디렉토리)를 채운 뒤 사용자에게 확인�
 
 `scrnaseq-plan-execute` 의 2단계와 같은 원칙으로 QC → 정규화/HVG → 배치 통합 →
 clustering → annotation → 조건 간 차등발현 → 조건 간 기능 분석 → REPORT 구조를 조립하되,
-조건 변수·마커·양성 대조는 이 Dataset 에 맞게 다시 채운다. 기능 분석 단계가 필요하면
-`decoupler-cheatsheet` 스킬을 먼저 읽는다.
+조건 변수·마커·양성 대조는 이 Dataset 에 맞게 다시 채운다.
+
+**분석 코드를 짜기 전에 그 단계를 다루는 스킬을 먼저 읽는다**(`scrnaseq-plan-execute` 의
+R5 와 같다) — QC · 정규화/HVG · 차원축소 · clustering · 차등발현 같은 표준 scRNA-seq
+작업은 `scanpy` 스킬이 있으면 **반드시 그 스킬을 읽고** 거기 적힌 함수·인자·순서를
+따르고, 기능 분석 단계가 필요하면 `decoupler-cheatsheet` 스킬을 읽는다. 기억에 의존해
+API 를 짐작하지 않는다. 스킬끼리 충돌하면 이 프로젝트 전용 스킬
+(`scrnaseq-visualization-spec` 등)이 범용 스킬(`scanpy`)보다 우선하며, 어느 쪽을
+따랐는지 결정 로그에 남긴다.
 
 annotation 은 marker 점수 최댓값 할당이 아니라 **celltypist** 로 수행하고, annotation·
 DEG·기능분석 단계의 그림은 `scrnaseq-visualization-spec` 스킬을 코드를 짜기 전에 읽고
-그 규격(cluster marker dotplot, celltype DEG 패널과 조건 DEG 패널을 서로 다른 임베딩
-위에 그리는 것, 기능 분석의 pathway 활성 scatter·ctrl/stim 구분 stacked violin, 한글
-폰트 깨짐 방지)을 따른다. 이 단계는 진행 방식(단계별 개입)과 무관하게 두 스킬 모두
-동일하게 지킨다.
+그 규격(positive·negative 를 같이 그리는 cluster marker dotplot, celltype DEG 패널과
+조건 DEG 패널을 서로 다른 임베딩 위에 그리는 것, 기능 분석의 pathway 활성 scatter·
+ctrl/stim 구분 stacked violin, 한글 폰트 깨짐 방지)을 따른다. 이 단계는 진행 방식
+(단계별 개입)과 무관하게 스킬들을 동일하게 지킨다.
 
 REPORT 단계도 마찬가지로 `scrnaseq-plan-execute` 의 `references/report.md` 규격을 그대로
 따른다 — `results/summary/report.html` 에 쓰고, `python tools/build_report.py` 로 그림을

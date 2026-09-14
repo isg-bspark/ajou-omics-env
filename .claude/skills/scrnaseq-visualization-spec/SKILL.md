@@ -8,6 +8,11 @@ description: scRNA-seq 분석의 annotation·DEG·기능 분석(GSEA·pathway) �
 그림 형태(scatter vs volcano)를 쓸지가 결과 해석을 바꾸므로, annotation·DEG·기능분석 코드를
 짜기 **전에** 이 문서를 읽고 아래 규격을 따른다. `step-validator` 는 이 규격을 기준으로 채점한다.
 
+`sc.pl.*` 호출 방법 자체(함수·인자·기본 워크플로)는 `scanpy` 스킬이 있으면 **그 스킬을
+읽고 따른다** — 기억에 의존해 인자를 짐작하지 않는다. 이 문서는 그 위에 얹히는 **이
+프로젝트 전용 규격**이므로, 둘이 어긋나면 이 문서가 우선한다(예: `scanpy` 스킬이 DEG
+그림으로 volcano 를 보여 주더라도 이 프로젝트에서는 3번 규격대로 발현 UMAP 을 그린다).
+
 ## 0. 모든 그림 공통 — 한글 폰트 깨짐(tofu) 방지
 
 matplotlib 기본 폰트(DejaVu Sans)에는 한글 글리프가 없다. 그림 제목·축 라벨에 한글이
