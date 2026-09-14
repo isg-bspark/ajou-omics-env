@@ -26,7 +26,7 @@ matplotlib 기본 폰트(DejaVu Sans)에는 한글 글리프가 없다. 그림 �
 2. **부득이 그림 안에 한글을 넣어야 하면**, 렌더링 전에 이 환경에 실제로 설치된 한글
    폰트를 확인하고(`fc-list :lang=ko` 또는 `matplotlib.font_manager` 로 탐색) 그 폰트
    이름으로 `plt.rcParams['font.family']` 를 지정한다. `plt.rcParams['axes.unicode_minus']
-   = False` 도 같이 설정한다(안 하면 마이너스 부호가 깨진다). 어떤 폰트를 썼는지 결정
+= False` 도 같이 설정한다(안 하면 마이너스 부호가 깨진다). 어떤 폰트를 썼는지 결정
    로그에 남긴다.
 
 어느 쪽을 택했든 **저장하기 전에 실제로 그림을 확인해서** 네모 깨짐이 없는지 본다.
@@ -65,7 +65,7 @@ matplotlib 기본 백엔드가 `macosx`(네이티브 GUI)일 때, 터미널과 �
 나타나므로, 코드가 잘못됐다고 오인해 애먼 곳을 고치기 쉽다.
 
 - **증상으로 알아채는 법**: 로그에 에러 없이 마지막 `print`/`WARNING: saving figure to
-  file ...` 뒤로 출력이 멈췄고, `ps -o pid,%cpu,time -p <PID>` 를 몇 초 간격으로
+file ...` 뒤로 출력이 멈췄고, `ps -o pid,%cpu,time -p <PID>` 를 몇 초 간격으로
   반복해도 `TIME` 값이 전혀 늘지 않으면(CPU 0%) 이 문제다. 실제로 계산 중이라면
   CPU%가 0이 아니거나 TIME이 계속 증가한다.
 - **예방(권장, 매번 이렇게 시작한다)**: scRNA-seq 그림을 그리는 모든 스크립트 맨 위,
@@ -80,10 +80,11 @@ matplotlib 기본 백엔드가 `macosx`(네이티브 GUI)일 때, 터미널과 �
   ```
 
   또는 스크립트를 실행하는 셸에서 환경변수로 지정해도 된다: `MPLBACKEND=Agg
-  python script.py` (`.venv/` 가 있는 환경이면 `.venv/bin/python`). 둘 중 하나만 있으면 충분하고, 스크립트 안에 넣는 쪽이
+python script.py` (`.venv/` 가 있는 환경이면 `.venv/bin/python`). 둘 중 하나만 있으면 충분하고, 스크립트 안에 넣는 쪽이
   실행 방법(포그라운드/백그라운드, 어떤 셸)에 관계없이 항상 적용되므로 더 안전하다.
+
 - **이미 멈춘 경우 복구**: `ps aux | grep <script.py>`로 PID를 찾고, `ps -o
-  pid,%cpu,time -p <PID>`를 두세 번 간격을 두고 찍어 TIME이 안 늘어나는 것을 확인한
+pid,%cpu,time -p <PID>`를 두세 번 간격을 두고 찍어 TIME이 안 늘어나는 것을 확인한
   뒤 `kill -9 <PID>`로 종료한다. 그 다음 위 예방 조치를 스크립트에 추가하고 **처음부터
   다시 실행**한다 — 중간부터 이어가지 않는다(그림을 그리기 전 단계까지는 이미 끝났을
   수 있지만, 안전하게 전체를 재실행하는 편이 무엇이 저장됐는지 추적하기 쉽다).
@@ -188,6 +189,7 @@ annotation 이 끝나면 cluster 별로 marker 발현이 실제로 분리되는�
    **읽는 법**: 어떤 클러스터를 `X` 로 부르려면 `X (+)` 구획의 점이 크고 진하면서
    동시에 `X (-)` 구획의 점이 작고 옅어야 한다. 둘 중 하나만 맞으면 근거가 약한
    것이므로 아래 3번(`unassigned-weak`)으로 넘기고 결정 로그에 남긴다.
+
 2. **한눈에 클러스터 구분이 안 되면** (예: 대부분의 클러스터에서 여러 마커가 비슷한
    크기·색으로 찍혀 있어 어느 마커가 어느 클러스터를 가르는지 바로 안 보이는 경우)
    — **2차 축소 dotplot**을 추가로 그린다. celltypist 로 배정된 celltype 과 도메인
@@ -261,7 +263,8 @@ DEG 는 목적이 다른 두 가지가 있고, **각각 다른 임베딩 위에�
 > 그린다. pre-integration 임베딩은 이미 조건에 따라 세포를 공간적으로 갈라 놓으므로,
 > 한 패널에 다 그리면 조건 차이가 그림 안에서 바로 읽힌다 — 굳이 `ctrl` 패널과 `stim`
 > 패널로 나누면 같은 색 스케일을 눈으로 옮겨 가며 비교해야 해서 오히려 대비가 약해진다.
-> 이 규칙은 4-1 pathway 활성 scatter 에도 똑같이 적용된다.
+> 이 규칙은 4-1 pathway 활성 UMAP 패널에도 똑같이 적용된다 — 거기서도 조건은 패널을
+> 쪼개는 기준이 아니라 **한 패널 안의 색**이다.
 
 ### 3-3. 결정 로그에 남길 것
 
@@ -276,40 +279,120 @@ enrichment 표(상위 pathway 순위·점수)만으로는 그 pathway 가 실제
 방식을 따라 아래 두 그림을 **enrichment 표에 추가로** 그린다. 대상 pathway 는 상위
 결과(양성 대조인 `INTERFERON_ALPHA_RESPONSE` 계열 포함)에서 3~5개를 고른다.
 
-### 4-1. Pathway 활성 scatter plot (embedding plot)
+### 4-1. Pathway 활성 UMAP 패널 (pathway 하나당 한 패널 + 조건 색 패널)
 
 **목적**: 고른 pathway 의 세포 단위 활성 점수(`dc.mt.*` 결과의 score matrix, 즉
 `adata.obsm["score_..."]` 류)를 UMAP 위에 점 색으로 얹어, 그 활성이 특정 세포 타입/영역에
-몰려 있는지 눈으로 확인한다.
+몰려 있는지 눈으로 확인한다. **pathway 마다 따로 파일을 만들지 않고 한 figure 안에
+그리드로 배치한다** — pathway 활성은 서로 비교해서 읽는 값이라, 파일을 오가며 보면
+"어느 pathway 가 어느 영역에서 켜지는가" 라는 이 그림의 핵심이 드러나지 않는다.
 
 - **비보정(pre-integration) UMAP**을 쓴다 — 3-2 조건 DEG 패널과 같은 이유로, 배치
-  보정된 임베딩을 쓰면 조건이 만드는 활성 차이가 지워질 수 있다.
-- `sc.pl.embedding(acts, basis="X_umap_pre_integration", color="<pathway>", ...)` 형태로
-  pathway 마다 **한 장씩** 그린다. 점 하나가 세포 하나, 색이 그 세포의 pathway 활성이다.
-- **ctrl 과 stim 세포를 한 패널에 모두 그린다** — 3-2 의 규칙과 같다. 조건별로 좌우
-  패널을 나누지 않는다. 조건 간 활성 분포를 수치로 비교하는 일은 4-2 stacked violin 이
-  맡는다(같은 celltype 안에서 ctrl/stim 을 나란히 놓는 것은 거기서 한다).
-- 파일명 예: `results/07_functional/figures/pathway_scatter_<pathway>.png`.
+  보정된 임베딩을 쓰면 조건이 만드는 활성 차이가 지워질 수 있다. 모든 패널이 **같은
+  임베딩·같은 축 범위**를 써야 패널 간 위치 비교가 성립한다.
+- **첫 패널은 조건(ctrl vs stim) 색 UMAP 이다.** 나머지 pathway 패널을 읽는 기준점이
+  된다 — 어떤 pathway 활성 영역이 stim 세포가 모인 영역과 겹치는지를 눈으로 바로
+  대조할 수 있다. 이 패널이 없으면 활성 덩어리를 보고도 그게 조건 때문인지 세포 타입
+  때문인지 구분할 수 없다.
+- **나머지 패널은 pathway 하나당 하나씩**, 색이 그 세포의 pathway 활성 점수다. 점 하나가
+  세포 하나다.
+- **ctrl 과 stim 세포는 모든 패널에 함께 그린다** — 3-2 의 규칙과 같다. 첫 패널에서
+  조건을 색으로 구분하는 것이지, 조건별로 패널을 쪼개는 것이 아니다. 조건 간 활성
+  분포를 수치로 비교하는 일은 4-2 stacked violin 이 맡는다.
+- **색 스케일**: 활성 점수는 0 을 중심으로 음수·양수가 함께 나오므로 발현량용
+  순차 컬러맵(`YlOrRd` 등)을 쓰지 않는다. `cmap="RdBu_r"` 처럼 발산형을 쓰고
+  `vcenter=0` 으로 0 을 중앙에 고정한다. 그렇게 해야 "활성이 낮다" 와 "활성이 음수다"
+  가 구분된다. colorbar 는 pathway 마다 범위가 다르므로 패널별로 따로 둔다.
+- `acts` 에 조건 컬럼이 넘어왔는지 확인한다(`dc` 결과 객체에 `obs` 가 안 실려 있으면
+  `acts.obs["stim"] = adata.obs["stim"]` 로 옮긴다). 없으면 첫 패널을 못 그린다.
+
+```python
+pathways = ["INTERFERON_ALPHA_RESPONSE", "INTERFERON_GAMMA_RESPONSE", "TNFA_SIGNALING_VIA_NFKB"]
+sc.pl.embedding(
+    acts, basis="X_umap_pre_integration",
+    color=["stim", *pathways],          # 첫 패널 = 조건, 나머지 = pathway 활성
+    cmap="RdBu_r", vcenter=0,
+    ncols=2, wspace=0.3, show=False,
+)
+```
+
+- 파일명 예: `results/07_functional/figures/pathway_umap_panel.png`.
 
 ### 4-2. Ctrl vs Stim 구분 stacked violin plot
 
 **목적**: 고른 pathway 활성 점수의 분포를 celltype 별로, 그리고 그 안에서 ctrl/stim 을
-나눠 비교한다 — scatter 는 공간 패턴을, stacked violin 은 celltype × 조건별 분포 차이를
-정량적으로 보여준다.
+나눠 비교한다 — 4-1 UMAP 패널은 공간 패턴을, stacked violin 은 celltype × 조건별 분포
+차이를 정량적으로 보여준다.
 
-- `sc.pl.stacked_violin` 은 `groupby` 를 하나만 받으므로, celltype 과 조건을 합친 그룹
-  컬럼(예: `adata.obs["celltype_stim"] = adata.obs["celltype"].astype(str) + "_" +
-  adata.obs["stim"].astype(str)`)을 만들어 그 컬럼으로 그리거나, celltype 별 subplot 을
-  만들어 각각 `seaborn.violinplot(..., x="celltype", y="score", hue="stim", split=True)`
-  로 그린다. 어느 방식을 쓰든 **같은 celltype 안에서 ctrl/stim 이 나란히 비교 가능**해야
-  한다 — celltype 만으로 묶고 조건을 안 나누면 이 그림의 목적을 못 채운다.
-- 여러 pathway 를 한 그림에 stack 해도 되고(변수=pathway, groupby=celltype_stim), pathway
-  하나당 그림 하나로 나눠도 된다 — 어느 쪽이든 ctrl/stim 구분이 보이면 된다.
+`sc.pl.stacked_violin` 은 `groupby` 를 하나만 받으므로 celltype 과 조건을 한 축에 같이
+놓을 수 없다. 아래 둘 중 **하나**를 고른다. 어느 쪽이든 **같은 celltype 안에서 ctrl/stim
+이 나란히 비교 가능**해야 한다 — celltype 만으로 묶고 조건을 안 나누면 이 그림의 목적을
+못 채운다.
+
+#### 방법 A — 합친 그룹 컬럼 + `sc.pl.stacked_violin` (행=pathway, 열=celltype×조건)
+
+```python
+acts.obs["celltype_stim"] = (acts.obs["celltype"].astype(str) + "_"
+                             + acts.obs["stim"].astype(str)).astype("category")
+n_groups = acts.obs["celltype_stim"].nunique()
+sc.pl.stacked_violin(
+    acts, pathways, groupby="celltype_stim",
+    density_norm="count",                        # 아래 주의 1
+    figsize=(max(10, 0.55 * n_groups), 6), width=0.9,   # 아래 주의 2
+    show=False,
+)
+```
+
+카테고리는 알파벳순으로 정렬되므로 `<celltype>_ctrl` 과 `<celltype>_stim` 이 저절로
+이웃한다 — 같은 celltype 의 두 조건이 항상 붙어 나온다.
+
+#### 방법 B — pathway 별 subplot + `seaborn.violinplot` (패널=pathway, x=celltype, hue=조건)
+
+```python
+long = acts.to_df().assign(**acts.obs[["celltype", "stim"]]).melt(
+    id_vars=["celltype", "stim"], var_name="pathway", value_name="score")
+fig, axes = plt.subplots(len(pathways), 1, figsize=(8, 3 * len(pathways)), sharex=True)
+for ax, pw in zip(axes, pathways):
+    sns.violinplot(data=long[long["pathway"] == pw], x="celltype", y="score",
+                   hue="stim", split=True, ax=ax)
+    ax.axhline(0, color="grey", lw=.8, ls="--")   # 활성 0 기준선
+```
+
+**subplot 을 나누는 기준은 celltype 이 아니라 pathway 다.** celltype 별로 패널을 나눠
+놓고 그 안에서 다시 `x="celltype"` 으로 묶으면 패널마다 x축 카테고리가 하나뿐이라
+바이올린 한 쌍만 덩그러니 남는다 — 여러 celltype 을 쌓아 비교한다는 이 그림의 목적이
+사라진다. `split=True` 는 조건이 정확히 두 개일 때만 쓴다.
+
+여러 pathway 를 한 그림에 stack 하든(방법 A) pathway 하나당 패널 하나로 나누든(방법 B)
+상관없다 — ctrl/stim 구분이 보이면 된다.
+
 - 파일명 예: `results/07_functional/figures/pathway_stacked_violin.png`.
+
+#### 이 그림이 이상해 보일 때 — 원인 넷
+
+1. **바이올린이 세로선처럼 얇다 → `figsize`.** `celltype_stim` 은 보통 12개 이상
+   (celltype 6~9개 × 조건 2개)이 되는데, `figsize` 기본값이나 임의로 준 작은 값
+   (예: `(6, 8)`)은 이만큼의 카테고리를 욱여넣기엔 좁다. 각 바이올린 폭이 머리카락처럼
+   얇아져 모양이 안 보인다 — 값이 잘못된 게 아니라 그릴 자리가 부족한 것이다. 위
+   방법 A 코드처럼 그룹 수에 비례해 너비를 잡는다.
+2. **그룹 크기가 안 보인다 → `density_norm`.** `sc.pl.stacked_violin` 의 기본값은
+   `density_norm="width"` 라 모든 바이올린을 같은 최대 폭으로 정규화한다. 세포 5개짜리
+   조합이 2000개짜리와 똑같이 크게 보인다. `density_norm="count"` 로 바꾸거나, 그룹별
+   세포 수를 그림이나 표에 같이 남긴다.
+3. **위아래가 뒤섞여 보인다 → 0 기준선이 없다.** 활성 점수는 0 을 중심으로 부호가
+   갈리는 값인데 stacked violin 은 원래 음수가 없는 발현량용 그림이라 기준선이 없다.
+   0 선을 그어야 "활성이 올라갔다"와 "내려갔다"가 구분된다.
+4. **`KeyError: not in index` 로 죽는다 → 쓰이지 않는 카테고리.** `groupby` 컬럼에 실제로
+   등장하지 않는 카테고리가 남아 있으면 빈 칸을 그리는 게 아니라 에러로 멈춘다. AnnData
+   를 subset 하면 대개 자동 정리되지만, `obs` 컬럼을 직접 손댔다면
+   `.cat.remove_unused_categories()` 를 한 번 부른다.
+
+그린 뒤에는 **반드시 그림을 열어서** 바이올린이 실제로 폭을 가지고 있는지, 같은 celltype
+의 ctrl/stim 이 이웃해 있는지 확인한다.
 
 ### 4-3. 결정 로그에 남길 것
 
-고른 pathway 목록(왜 이 pathway 들을 골랐는지 — 양성 대조 포함 여부), scatter 에 쓴
+고른 pathway 목록(왜 이 pathway 들을 골랐는지 — 양성 대조 포함 여부), UMAP 패널에 쓴
 임베딩이 pre-integration 인 이유, stacked violin 에서 celltype×조건을 어떻게 묶었는지를
 한 줄로 남긴다. 0번의 폰트 규칙을 지켰는지(그림 텍스트를 영어로 뒀는지, 아니면 어떤
 한글 폰트를 지정했는지)도 함께 남긴다.
@@ -325,8 +408,9 @@ enrichment 표(상위 pathway 순위·점수)만으로는 그 pathway 가 실제
   조건 DEG 그림(pre-integration UMAP + 유전자 발현량 색)이 각각 올바른 임베딩을 쓰는지,
   둘을 뒤바꿔 쓰지 않았는지. **volcano·MA plot 이 있으면 규격 위반**이고, **ctrl 과 stim
   이 좌우 패널로 쪼개져 있어도 규격 위반**이다.
-- 기능 분석 단계: pathway 활성 scatter(비보정 UMAP, ctrl+stim 한 패널)와 ctrl/stim 구분
-  stacked violin 이 둘 다 있는지, 그림 텍스트에 한글 폰트 깨짐(tofu)이 없는지.
+- 기능 분석 단계: pathway 활성 UMAP 패널(비보정 UMAP, 조건 색 패널 + pathway 하나당
+  한 패널, ctrl+stim 을 모든 패널에 함께)과 ctrl/stim 구분 stacked violin 이 둘 다
+  있는지, 그림 텍스트에 한글 폰트 깨짐(tofu)이 없는지.
 - 리포트 단계: **각 절에 그 절의 그림만 들어갔는지.** 조건 간 차등발현 절에 celltype
   DEG 패널(세포 타입 구조를 보여주는 그림)을 넣는 것은 흔한 혼동이다 — celltype DEG
   패널은 annotation 절에, 조건 DEG 그림은 조건 간 차등발현 절에 둔다.

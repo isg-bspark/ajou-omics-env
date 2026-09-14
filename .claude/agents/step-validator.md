@@ -274,16 +274,33 @@ annotation·DEG 단계의 그림 규격(cluster↔celltype 대조 패널, dotplo
 
 **필수 그림 — `scrnaseq-visualization-spec` 규격**
 
-- **pathway 활성 scatter plot**(비보정 pre-integration UMAP 위에 pathway 별 세포 단위
-  점수를 색으로 얹은 그림, `results/07_functional/figures/pathway_scatter_*.png` 류)이 고른 pathway
-  마다 있는가. post-integration(배치 보정된) 임베딩을 썼다면 조건 신호가 지워지므로
+- **pathway 활성 UMAP 패널**(비보정 pre-integration UMAP 위에 pathway 별 세포 단위
+  점수를 색으로 얹은 그림, `results/07_functional/figures/pathway_umap_panel.png` 류)이
+  있는가. post-integration(배치 보정된) 임베딩을 썼다면 조건 신호가 지워지므로
   정확성을 깎는다
-- 이 scatter 에서 **ctrl 과 stim 세포가 한 패널에 함께** 그려져 있는가. 조건별로 좌우
-  패널을 쪼갰다면 규격 위반이다 — 조건별 분포 비교는 아래 stacked violin 이 맡는다
+- 이 패널이 **한 figure 안에 pathway 하나당 한 패널씩** 그리드로 배치되어 있는가.
+  고른 pathway 가 3~5개인데 패널이 그보다 적으면 완결성을 깎는다. pathway 마다 파일을
+  따로 쪼갰다면 규격 위반이다 — 서로 비교해서 읽는 그림이다
+- **조건(ctrl vs stim) 색 UMAP 패널이 같은 figure 안에 함께** 있는가. 없으면 pathway
+  활성 영역이 조건 때문인지 세포 타입 때문인지 대조할 기준이 없으므로 완결성을 깎는다
+- **ctrl 과 stim 세포가 모든 패널에 함께** 그려져 있는가. 조건별로 패널을 쪼갰다면
+  규격 위반이다 — 조건은 첫 패널의 색으로만 구분한다. 조건별 분포 비교는 아래
+  stacked violin 이 맡는다
+- 활성 점수는 부호가 있으므로 **0 을 중앙에 고정한 발산형 컬러맵**(`RdBu_r` + `vcenter=0`
+  류)을 썼는가. 순차 컬러맵(`YlOrRd` 등)만 썼다면 음수 활성과 낮은 활성이 구분되지
+  않으므로 정확성을 깎는다
 - **ctrl vs stim 을 구분한 stacked violin plot**(`results/07_functional/figures/pathway_stacked_violin.png`
   류)이 있는가. celltype 으로만 묶고 조건을 나누지 않았다면 이 그림의 목적을 못
   채운 것이므로 완결성을 깎는다
-- 그림에 쓴 pathway 목록과 그 선택 이유, scatter 의 임베딩 선택 이유가
+- 그 그림에서 **같은 celltype 의 ctrl/stim 이 이웃해** 있는가. 규격의 두 방법 중
+  방법 B(pathway 별 subplot)를 썼다면 **패널을 나눈 기준이 pathway 인지** 본다 —
+  celltype 별로 패널을 나눠 패널마다 바이올린 한 쌍만 남았다면 규격 위반이다
+- **바이올린이 세로선처럼 얇지 않은가.** 그룹 수(celltype × 조건, 보통 12개 이상)에
+  비해 `figsize` 가 좁으면 모양이 뭉개진다. 값이 아니라 그릴 자리의 문제이므로 정확성이
+  아니라 완결성을 깎고, 코드에 그룹 수에 비례한 `figsize` 가 있는지 확인한다
+- 활성 점수는 부호가 있으므로 **0 기준선**이 있는가. 없으면 활성이 올라간 것과 내려간
+  것이 눈으로 구분되지 않으므로 완결성을 깎는다
+- 그림에 쓴 pathway 목록과 그 선택 이유, UMAP 패널의 임베딩 선택 이유가
   결정 로그에 있는가
 - **그림 안 텍스트(제목·축 라벨·범례)에 한글 폰트 깨짐(tofu, 네모 글자)이 없는가.**
   한글이 들어간 그림이면 어떤 한글 폰트를 지정했는지 결정 로그에 기록이 있는가.
