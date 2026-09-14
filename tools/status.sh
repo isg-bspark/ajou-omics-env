@@ -74,8 +74,8 @@ for wt in dirs:
     decisions = [d for d in get(data, "decisions", default=[]) if isinstance(d, dict)]
     by_human = sum(1 for d in decisions if d.get("decided_by") == "human")
 
-    n_files = sum(1 for sub in ("results", "figures")
-                  for f in (wt / sub).rglob("*") if f.is_file()) if wt.exists() else 0
+    n_files = sum(1 for f in (wt / "results").rglob("*")
+                  if f.is_file()) if wt.exists() else 0
 
     rows.append({
         "실험": wt.name,

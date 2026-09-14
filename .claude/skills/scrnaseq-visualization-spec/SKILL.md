@@ -32,6 +32,28 @@ matplotlib 기본 폰트(DejaVu Sans)에는 한글 글리프가 없다. 그림 �
 어느 쪽을 택했든 **저장하기 전에 실제로 그림을 확인해서** 네모 깨짐이 없는지 본다.
 확인 없이 "폰트 설정했으니 괜찮겠지"로 넘기지 않는다.
 
+## 0.1 모든 그림 공통 — 저장 위치
+
+그림은 **그 그림을 만든 단계의 디렉토리 안**에 둔다 — `results/<번호>_<단계>/figures/`.
+최상위에 `figures/` 를 만들지 않는다. 표·수치는 같은 단계의 `results/<번호>_<단계>/`
+바로 아래에 두므로, 한 단계의 산출물은 전부 한 디렉토리 아래에 모인다.
+
+저장 직전에 그 경로를 만들고, scanpy 의 autosave 를 쓴다면 단계마다 `figdir` 을 바꿔 준다.
+`sc.settings.figdir` 의 기본값은 `./figures/` 라서, 그대로 두면 `scanpy` 스킬의 예제를
+그대로 따라 쓰는 순간 최상위에 그림이 쌓인다.
+
+```python
+import os, scanpy as sc
+
+figdir = "results/05_annotation/figures"
+os.makedirs(figdir, exist_ok=True)
+sc.settings.figdir = figdir          # 단계가 바뀌면 이 줄도 같이 바꾼다
+# 또는 직접 저장: fig.savefig(f"{figdir}/dotplot_core_markers.png", dpi=150, bbox_inches="tight")
+```
+
+리포트(`results/summary/report.html`)에서 참조할 때는 한 단계 올라간 상대 경로가 된다 —
+`../05_annotation/figures/dotplot_core_markers.png`.
+
 ## 0.5 모든 그림 공통 — macOS에서 백그라운드 실행 시 무한 대기(hang) 방지
 
 이 파이프라인의 그림 그리는 스크립트(annotation·DEG·기능분석 전부)는 실행 시간이 길어
@@ -106,7 +128,7 @@ annotation 단계의 그림은 **두 가지를 함께** 만든다. 하나는 "�
 - **양쪽 모두 같은 임베딩**을 쓴다 — clustering 을 수행한 그 임베딩, 즉
   **post-integration** UMAP 이다. 좌우가 서로 다른 좌표계면 대조 자체가 불가능하다.
 - 한 figure 안에 `plt.subplots(1, 2, ...)` 로 나란히 배치한다.
-- 파일명 예: `figures/05_annotation/cluster_vs_celltype_panel.png`.
+- 파일명 예: `results/05_annotation/figures/cluster_vs_celltype_panel.png`.
 
 ```python
 fig, axes = plt.subplots(1, 2, figsize=(15, 6))
@@ -178,8 +200,8 @@ annotation 이 끝나면 cluster 별로 marker 발현이 실제로 분리되는�
    dotplot 상에서 식별돼야 한다. 안 되면 근거 약한 클러스터로 표시하고 annotation 요약에
    남긴다(기존 `unassigned-weak` 관행 유지).
 
-파일명 예: `figures/05_annotation/dotplot_core_markers.png`(1차),
-`figures/05_annotation/dotplot_curated_markers.png`(2차, 필요시).
+파일명 예: `results/05_annotation/figures/dotplot_core_markers.png`(1차),
+`results/05_annotation/figures/dotplot_curated_markers.png`(2차, 필요시).
 
 ### 2-3. 결정 로그에 남길 것
 
@@ -211,8 +233,8 @@ DEG 는 목적이 다른 두 가지가 있고, **각각 다른 임베딩 위에�
   x축=pct_expressed, y축=평균발현 같은 **유전자 요약 산점도도 이 패널에서는 쓰지 않는다.**
 - 왼쪽·오른쪽을 **한 figure 안에 나란히**(`plt.subplots(1, 2, ...)`) 배치한다.
 - 상위 marker 가 여러 개면 **유전자마다 UMAP 하나씩** 그리드로 배치한다
-  (`figures/05_annotation/celltype_marker_umap_topgenes.png` 계열).
-- 파일명 예: `figures/05_annotation/celltype_deg_panel.png`.
+  (`results/05_annotation/figures/celltype_marker_umap_topgenes.png` 계열).
+- 파일명 예: `results/05_annotation/figures/celltype_deg_panel.png`.
 
 ### 3-2. 조건(ctrl vs stim) DEG 패널 — "조건 반응이 뚜렷한가"
 
@@ -231,9 +253,9 @@ DEG 는 목적이 다른 두 가지가 있고, **각각 다른 임베딩 위에�
   발현량을 색으로** 얹는다(`sc.pl.embedding(..., color="<gene>", cmap="YlOrRd")`).
   점 하나가 세포 하나이고, 색이 그 세포의 발현량이다.
 - 상위 유전자가 여러 개면 **유전자마다 임베딩 하나씩** 그리드로 배치한다
-  (`figures/06_deg/condition_deg_umap_topgenes.png` 계열).
-- 파일명 예: `figures/06_deg/condition_deg_panel.png` (조건 색 UMAP + 대표 유전자 발현 UMAP),
-  `figures/06_deg/condition_deg_umap_topgenes.png` (상위 유전자별 그리드).
+  (`results/06_deg/figures/condition_deg_umap_topgenes.png` 계열).
+- 파일명 예: `results/06_deg/figures/condition_deg_panel.png` (조건 색 UMAP + 대표 유전자 발현 UMAP),
+  `results/06_deg/figures/condition_deg_umap_topgenes.png` (상위 유전자별 그리드).
 
 > **ctrl 과 stim 을 좌우 패널로 쪼개지 않는다.** 두 조건의 세포를 **한 패널 안에 모두**
 > 그린다. pre-integration 임베딩은 이미 조건에 따라 세포를 공간적으로 갈라 놓으므로,
@@ -267,7 +289,7 @@ enrichment 표(상위 pathway 순위·점수)만으로는 그 pathway 가 실제
 - **ctrl 과 stim 세포를 한 패널에 모두 그린다** — 3-2 의 규칙과 같다. 조건별로 좌우
   패널을 나누지 않는다. 조건 간 활성 분포를 수치로 비교하는 일은 4-2 stacked violin 이
   맡는다(같은 celltype 안에서 ctrl/stim 을 나란히 놓는 것은 거기서 한다).
-- 파일명 예: `figures/07_functional/pathway_scatter_<pathway>.png`.
+- 파일명 예: `results/07_functional/figures/pathway_scatter_<pathway>.png`.
 
 ### 4-2. Ctrl vs Stim 구분 stacked violin plot
 
@@ -283,7 +305,7 @@ enrichment 표(상위 pathway 순위·점수)만으로는 그 pathway 가 실제
   한다 — celltype 만으로 묶고 조건을 안 나누면 이 그림의 목적을 못 채운다.
 - 여러 pathway 를 한 그림에 stack 해도 되고(변수=pathway, groupby=celltype_stim), pathway
   하나당 그림 하나로 나눠도 된다 — 어느 쪽이든 ctrl/stim 구분이 보이면 된다.
-- 파일명 예: `figures/07_functional/pathway_stacked_violin.png`.
+- 파일명 예: `results/07_functional/figures/pathway_stacked_violin.png`.
 
 ### 4-3. 결정 로그에 남길 것
 

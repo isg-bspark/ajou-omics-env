@@ -9,23 +9,21 @@ single_cell_project/
 │
 ├── results/
 │   ├── 01_qc/
+│   │   └── figures/
 │   ├── 02_normalization/
+│   │   └── figures/
 │   ├── 03_integration/
+│   │   └── figures/
 │   ├── 04_clustering/
+│   │   └── figures/
 │   ├── 05_annotation/
+│   │   └── figures/
 │   ├── 06_deg/
+│   │   └── figures/
 │   ├── 07_functional/
+│   │   └── figures/
 │   ├── validation/
 │   └── summary/
-│
-├── figures/
-│   ├── 01_qc/
-│   ├── 02_normalization/
-│   ├── 03_integration/
-│   ├── 04_clustering/
-│   ├── 05_annotation/
-│   ├── 06_deg/
-│   └── 07_functional/
 │
 ├── config/
 │
@@ -45,7 +43,8 @@ data/raw/: 원본 데이터. 가능하면 수정하지 않는다.
 data/genesets/: 기능 분석용 prior knowledge(gene set·footprint) 캐시. 공용 입력이므로 읽기만 한다.
 data/processed/: QC, preprocessing, annotation 등 분석 과정에서 생성되는 재사용 가능한 중간 데이터.
 scripts/: 재현 가능하고 반복 실행할 분석 코드. 필요에 따라 하나 또는 여러 파일로 구성한다.
-results/: 분석 단계별 산출물. 하위 디렉토리는 scripts/의 분석 스크립트와 같은 방식으로 파이프라인 순서대로 두 자리 번호를 앞에 붙인다(01_ ~ 07_). 번호는 분석 순서를 디렉토리 목록만 보고도 알 수 있게 하기 위한 것이며, 단계를 추가하거나 생략할 때도 순서만 맞으면 된다. 단계에 속하지 않는 validation/과 summary/에는 번호를 붙이지 않는다.
+results/: 분석 단계별 산출물. 하위 디렉토리는 scripts/의 분석 스크립트와 같은 방식으로 파이프라인 순서대로 두 자리 번호를 앞에 붙인다(01_ ~ 07_). 번호는 분석 순서를 디렉토리 목록만 보고도 알 수 있게 하기 위한 것이며, 단계를 추가하거나 생략할 때도 순서만 맞으면 된다. 단계에 속하지 않는 validation/과 summary/에는 번호를 붙이지 않는다. 한 단계의 표·수치와 그림은 흩어 놓지 않고 그 단계 디렉토리 안에 함께 둔다 — 표·수치는 results/<번호>_<단계>/ 바로 아래에, 그림은 results/<번호>_<단계>/figures/ 아래에 쓴다.
+results/<번호>_<단계>/figures/: 그 단계에서 생성한 시각화. 그림은 자기 단계 디렉토리 안에만 두고 최상위에 figures/를 따로 만들지 않는다. 필요한 경우 목적에 맞는 하위 디렉토리를 자유롭게 추가한다.
 results/01_qc/: QC 통계, 필터링 결과 등.
 results/02_normalization/: 정규화, HVG 선택 결과 등.
 results/03_integration/: 배치 통합과 차원 축소(PCA·neighborhood graph·UMAP 등) 결과. 통합 전후를 비교한 지표도 여기에 둔다.
@@ -55,7 +54,6 @@ results/06_deg/: differential expression 분석 결과. cell type 간 DEG와 con
 results/07_functional/: gene set enrichment, pathway·transcription factor 활성 추정 등 기능 분석 결과. 어떤 prior knowledge(gene set·footprint)와 어떤 통계 방법을 썼는지를 결과 파일이나 metrics.json에 함께 남긴다. 이 기록이 없으면 결과를 재현할 수 없다.
 results/validation/: 각 단계를 끝낸 뒤 step-validator 에이전트에게 받은 채점 결과를 `<번호>_<단계>.md`로 남기는 곳.
 results/summary/: 이 작업 트리 전체의 요약 산출물. metrics.json과 report.html(그리고 tools/build_report.py로 만든 report_standalone.html)이 여기에 놓인다. 이 실험의 결과를 바깥에서 읽는 위치이므로 파일명을 임의로 바꾸지 않는다.
-figures/: 분석 과정에서 생성한 주요 시각화. 하위 디렉토리는 results/와 같은 번호·이름을 쓴다(figures/01_qc/ ~ figures/07_functional/). 필요한 경우 목적에 맞는 하위 디렉토리를 자유롭게 추가한다.
 config/: 분석 파라미터나 설정 파일이 필요한 경우 사용한다.
 EXPERIMENT.md: 이 작업 트리가 하나의 실험일 때만 존재한다. 실험의 아이디어, 진행 방식, 결정 로그를 담는다.
 worktrees/: 병렬 실험용 git worktree가 놓이는 자리. main 작업 트리에만 존재하며 git으로 추적하지 않는다.

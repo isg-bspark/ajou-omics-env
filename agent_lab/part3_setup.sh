@@ -30,7 +30,7 @@ else
   echo "  ✓ .claude/skills/scanpy  없음 (①에서 gh skill install)"
 fi
 
-# ④ 1교시 산출물만 정리 (2교시의 results/ figures/ 는 건드리지 않는다)
+# ④ 1교시 산출물만 정리 (2교시의 results/ 는 건드리지 않는다)
 rm -rf out; mkdir -p out
 rm -f agent_lab/.runs.json
 echo "  ✓ out/  정리"

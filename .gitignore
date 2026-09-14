@@ -4,9 +4,8 @@
 # 강사용 세포 타입 주석 포함본 (prepare_data.py --with-cell-type)
 data/processed/*_with_celltype.h5ad
 
-# 분석 중 생성되는 결과물
+# 분석 중 생성되는 결과물 (그림은 results/<번호>_<단계>/figures/ 안에 있다)
 results/
-figures/
 *.h5ad.tmp
 
 # 병렬 실험 (2일차 2교시) — parallel_lab/setup.sh 가 만든다

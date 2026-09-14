@@ -61,9 +61,11 @@ devcontainer)에서는 시스템 `python` 에 scanpy·decoupler·celltypist 가 
 (`[ -x .venv/bin/python ] && PY=.venv/bin/python || PY=python`), 패키지가 없으면 없다고
 알린다 — 새 가상환경을 만들지 않는다. 자세한 이유는 `scrnaseq-plan-execute` 0.5단계에 있다.
 
-단계별 산출물 경로도 `scrnaseq-plan-execute` 의 R8 을 그대로 따른다 — `results/01_qc/` ~
-`results/07_functional/` 과 같은 이름의 `figures/` 하위 디렉토리에 짝을 맞춰 쓰고,
-`results/validation/` 과 `results/summary/` 에는 번호를 붙이지 않는다.
+단계별 산출물 경로도 `scrnaseq-plan-execute` 의 R8 을 그대로 따른다 — 표·수치는
+`results/01_qc/` ~ `results/07_functional/` 바로 아래에, 그림은 그 단계 안의
+`figures/` 하위 디렉토리(`results/05_annotation/figures/` 처럼)에 쓴다. 최상위에
+`figures/` 를 따로 만들지 않는다. `results/validation/` 과 `results/summary/` 에는
+번호를 붙이지 않는다.
 
 ## 1. Task / Objective / Dataset / Path 를 채운다
 

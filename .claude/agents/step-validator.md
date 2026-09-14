@@ -44,8 +44,8 @@ annotation·DEG 단계의 그림 규격(cluster↔celltype 대조 패널, dotplo
 `EXPERIMENT.md` 의 "진행 방식" 항목과 결정 로그를 **아직 읽지 않는다.**
 산출물·코드·수치만 보고 두 점수를 매긴다.
 
-읽을 것: 해당 단계의 `scripts/` 코드, `results/` 산출물, `figures/` 그림,
-`results/summary/metrics.json` 의 해당 블록.
+읽을 것: 해당 단계의 `scripts/` 코드, `results/<번호>_<단계>/` 산출물,
+`results/<번호>_<단계>/figures/` 그림, `results/summary/metrics.json` 의 해당 블록.
 
 ### 2단계 · 수치 추적
 
@@ -172,14 +172,14 @@ annotation·DEG 단계의 그림 규격(cluster↔celltype 대조 패널, dotplo
 
 **필수 그림 — `scrnaseq-visualization-spec` 규격**
 
-- **cluster↔celltype 대조 패널**(`figures/05_annotation/cluster_vs_celltype_panel.png` 류)이
+- **cluster↔celltype 대조 패널**(`results/05_annotation/figures/cluster_vs_celltype_panel.png` 류)이
   있는가. 왼쪽이 clustering 결과(`leiden` 색), 오른쪽이 annotation 결과(`celltype` 색),
   **양쪽이 같은 post-integration 임베딩** 위에 나란히 있어야 한다. 좌우가 다른 좌표계면
   대조가 불가능하므로 정확성을 깎고, 아예 없으면 완결성을 깎는다
 - 그 대조 패널에서 클러스터와 세포 타입이 1:1 이 아닌 지점(한 타입이 여러 클러스터로
   갈렸거나 근거 약해 `Ambiguous`/`unassigned` 로 남은 클러스터)에 대한 판단이 결정
   로그에 있는가
-- 1차 cluster marker dotplot(`figures/05_annotation/dotplot_core_markers.png` 류)이 있는가
+- 1차 cluster marker dotplot(`results/05_annotation/figures/dotplot_core_markers.png` 류)이 있는가
 - dotplot 의 marker 가 **세포 타입별로 묶여**(`var_names` 에 `{타입: [marker...]}`
   딕셔너리를 넘겨 타입 구획이 그려진 형태) 있는가. 알파벳 순으로 늘어선 평평한 유전자
   리스트라면 어느 marker 묶음이 어느 타입을 가리키는지 그림에서 읽을 수 없으므로
@@ -275,12 +275,12 @@ annotation·DEG 단계의 그림 규격(cluster↔celltype 대조 패널, dotplo
 **필수 그림 — `scrnaseq-visualization-spec` 규격**
 
 - **pathway 활성 scatter plot**(비보정 pre-integration UMAP 위에 pathway 별 세포 단위
-  점수를 색으로 얹은 그림, `figures/07_functional/pathway_scatter_*.png` 류)이 고른 pathway
+  점수를 색으로 얹은 그림, `results/07_functional/figures/pathway_scatter_*.png` 류)이 고른 pathway
   마다 있는가. post-integration(배치 보정된) 임베딩을 썼다면 조건 신호가 지워지므로
   정확성을 깎는다
 - 이 scatter 에서 **ctrl 과 stim 세포가 한 패널에 함께** 그려져 있는가. 조건별로 좌우
   패널을 쪼갰다면 규격 위반이다 — 조건별 분포 비교는 아래 stacked violin 이 맡는다
-- **ctrl vs stim 을 구분한 stacked violin plot**(`figures/07_functional/pathway_stacked_violin.png`
+- **ctrl vs stim 을 구분한 stacked violin plot**(`results/07_functional/figures/pathway_stacked_violin.png`
   류)이 있는가. celltype 으로만 묶고 조건을 나누지 않았다면 이 그림의 목적을 못
   채운 것이므로 완결성을 깎는다
 - 그림에 쓴 pathway 목록과 그 선택 이유, scatter 의 임베딩 선택 이유가

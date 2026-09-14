@@ -53,7 +53,7 @@ Task 를 먼저 받는 이유는 `EXPERIMENT.md` 의 목표 줄을 실제 연구
 
    | 선택 | 하는 일 |
    |---|---|
-   | 갱신하고 이어서 한다 (권장) | `bash "$ROOT/.claude/scripts/worktree_init.sh" <이름> --refresh` — main 을 실험 branch 에 merge 하고 공유 링크를 새 구성으로 다시 건다. `data/processed/`·`results/`·`figures/` 의 기존 산출물은 그대로 남는다. 끝나면 `EXISTS <경로>` 를 출력하므로 그때 `EnterWorktree` 로 진입한다 |
+   | 갱신하고 이어서 한다 (권장) | `bash "$ROOT/.claude/scripts/worktree_init.sh" <이름> --refresh` — main 을 실험 branch 에 merge 하고 공유 링크를 새 구성으로 다시 건다. `data/processed/`·`results/` 의 기존 산출물은 그대로 남는다. 끝나면 `EXISTS <경로>` 를 출력하므로 그때 `EnterWorktree` 로 진입한다 |
    | 다른 이름으로 새로 시작한다 | 새 이름으로 0단계 2번을 다시 실행한다. 옛 worktree 는 손대지 않는다 |
    | 그대로 이어서 한다 | 옛 구성을 감수한다. 이 선택을 받았으면 0.5단계에서 무엇이 끊어져 있는지 확인해 사용자에게 알린다 |
 
@@ -197,13 +197,17 @@ R7  REPORT 단계는 `references/report.md` 를 읽고 그 규격대로 만든�
     본문에 박은 report_standalone.html 을 함께 만든 뒤, 사용자에게 **우클릭 →
     Show Preview 로 연다**는 안내를 경로와 함께 준다. Codespace 웹 편집기는 .html 을
     소스 코드로만 보여주므로, 경로만 알려주면 리포트를 못 본 것과 같다.
-R8  단계별 산출물은 `results/` · `figures/` 의 **번호 붙은 단계 디렉토리**에 쓴다 —
+R8  단계별 산출물은 `results/` 의 **번호 붙은 단계 디렉토리**에 쓴다 —
     `01_qc` · `02_normalization` · `03_integration` · `04_clustering` · `05_annotation` ·
     `06_deg` · `07_functional`. 번호는 파이프라인 순서를 디렉토리 목록만으로 알 수 있게
     하기 위한 것이므로, 단계를 빼거나 더해도 순서만 맞추면 된다. 단계에 속하지 않는
     `results/validation/` 과 `results/summary/` 에는 번호를 붙이지 않는다.
-    같은 단계의 표·수치는 `results/<번호>_<단계>/`, 그림은 `figures/<번호>_<단계>/` 로
-    짝을 맞춘다. 이미 `CLAUDE.md` 에 다른 구조가 적혀 있으면 그쪽을 따른다.
+    한 단계의 표·수치와 그림은 그 단계 디렉토리 안에 함께 둔다 — 표·수치는
+    `results/<번호>_<단계>/` 바로 아래, 그림은 `results/<번호>_<단계>/figures/` 아래다.
+    최상위에 `figures/` 를 따로 만들지 않는다. 그림을 저장하기 전에 그 단계의
+    `figures/` 를 먼저 만들고(`os.makedirs(..., exist_ok=True)`), scanpy 의
+    `sc.settings.figdir` 을 쓴다면 단계마다 그 경로로 바꿔 준다 — 기본값 `./figures/`
+    그대로 두면 최상위에 쌓인다. 이미 `CLAUDE.md` 에 다른 구조가 적혀 있으면 그쪽을 따른다.
 ```
 
 `metrics.json` 키는 `tools/metrics_template.json` 이 있으면 그 이름을 그대로 쓴다.

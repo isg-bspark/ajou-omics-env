@@ -4,7 +4,7 @@
 #   bash tools/cleanup.sh          # 무엇이 지워지는지 보여주기만 한다
 #   bash tools/cleanup.sh --yes    # 실제로 지운다
 #
-# 주의 — worktree 를 지우면 그 안의 results/ figures/ 도 함께 사라집니다.
+# 주의 — worktree 를 지우면 그 안의 results/ (그림 포함) 도 함께 사라집니다.
 #        남기고 싶은 것은 먼저 worktree 밖으로 복사하세요.
 set -euo pipefail
 
@@ -41,7 +41,7 @@ if [ "${#TARGETS[@]}" -eq 0 ]; then
 fi
 
 count_files() {
-  find "$1/results" "$1/figures" -type f 2>/dev/null | wc -l | tr -d ' '
+  find "$1/results" -type f 2>/dev/null | wc -l | tr -d ' '
 }
 
 echo "지워질 것:"
