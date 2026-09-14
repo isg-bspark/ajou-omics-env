@@ -11,7 +11,7 @@ description: 'scRNA-seq 분석의 annotation·DEG·기능 분석(GSEA·pathway) 
 `sc.pl.*` 호출 방법 자체(함수·인자·기본 워크플로)는 `scanpy` 스킬이 있으면 **그 스킬을
 읽고 따른다** — 기억에 의존해 인자를 짐작하지 않는다. 이 문서는 그 위에 얹히는 **이
 프로젝트 전용 규격**이므로, 둘이 어긋나면 이 문서가 우선한다(예: `scanpy` 스킬이 DEG
-그림으로 volcano 를 보여 주더라도 이 프로젝트에서는 3번 규격대로 발현 UMAP 을 그린다).
+그림으로 volcano 를 보여 주더라도 이 프로젝트에서는 2번 규격대로 발현 UMAP 을 그린다).
 
 ## 0. 모든 그림 공통 — 한글 폰트 깨짐(tofu) 방지
 
@@ -91,33 +91,14 @@ pid,%cpu,time -p <PID>`를 두세 번 간격을 두고 찍어 TIME이 안 늘어
 - 이 문제는 Linux 컨테이너나 CI처럼 애초에 GUI 백엔드가 없는 환경에서는 발생하지
   않는다 — 로컬 macOS 환경에서 실험할 때만 해당한다는 것을 기억한다.
 
-## 1. Annotation — celltypist 로 수행한다
-
-marker positive/negative 점수 최댓값 할당 방식 대신 **celltypist** 로 세포 타입을 예측한다.
-
-- 조직에 맞는 pretrained 모델을 고른다 (PBMC 면 `Immune_All_Low.pkl` 또는
-  `Immune_All_High.pkl` 계열). 모델이 로컬에 없으면 `celltypist.models.download_models()`
-  로 받고, **모델 이름과 버전을 결정 로그와 `annotation_summary.json` 에 기록한다** —
-  기록이 없으면 재현 불가능하다.
-- `celltypist.annotate(adata, model=..., majority_voting=True)` 로 세포 단위 예측 후
-  cluster 단위로 다수결(majority voting) 라벨을 cluster 에 배정한다. 세포 단위 예측을
-  그대로 쓰지 않는다 — 같은 클러스터 안에서 라벨이 흔들리면 그 자체가 클러스터링/해상도
-  문제일 수 있으므로 별도로 기록한다.
-- `data/core_markers.xlsx` 같은 참조 마커 파일이 있으면 celltypist 라벨과 **대조 검증**에
-  쓴다(2번 dotplot 이 이 역할을 한다). celltypist 예측을 이 파일로 덮어쓰지 않는다 —
-  불일치가 있으면 근거와 함께 기록하고 어느 쪽을 채택했는지 남긴다.
-- celltypist 모델이 이 조직/종에 없거나 부적절하면(예: 비인간 종, 흔치 않은 조직)
-  그 사실을 기록하고 marker 기반 방식으로 돌아갈 수 있다 — 단, **왜 celltypist 를 못
-  쓰는지**를 결정 로그에 남긴 경우에만 허용한다.
-
-## 2. Annotation 이후 — cluster↔celltype 대조 패널 + cluster marker dotplot (둘 다 필수)
+## 1. Annotation 이후 — cluster↔celltype 대조 패널 + cluster marker dotplot (둘 다 필수)
 
 annotation 단계의 그림은 **두 가지를 함께** 만든다. 하나는 "어느 클러스터가 어느 이름을
-받았는가"(2-0), 다른 하나는 "그 이름이 marker 로 뒷받침되는가"(2-1~2-3)다. 둘 중 하나만
+받았는가"(1-0), 다른 하나는 "그 이름이 marker 로 뒷받침되는가"(1-1~1-3)다. 둘 중 하나만
 있으면 라벨을 검증할 수 없다 — dotplot 만 있으면 클러스터 번호와 세포 타입의 대응이
 안 보이고, 대조 패널만 있으면 그 대응이 근거 있는지 알 수 없다.
 
-### 2-0. Cluster↔celltype 대조 패널 (필수)
+### 1-0. Cluster↔celltype 대조 패널 (필수)
 
 **목적**: clustering 이 만든 클러스터와 annotation 이 붙인 세포 타입을 **나란히 놓고**
 어느 클러스터가 어느 타입이 됐는지, 한 타입이 여러 클러스터로 쪼개졌거나 여러 타입이
@@ -136,7 +117,7 @@ fig, axes = plt.subplots(1, 2, figsize=(15, 6))
 sc.pl.umap(adata, color="leiden", ax=axes[0], show=False, legend_loc="on data",
            title=f"Leiden clusters (resolution {res})")
 sc.pl.umap(adata, color="celltype_broad", ax=axes[1], show=False,
-           title="Cell types (celltypist)")
+           title="Cell types")
 ```
 
 > **리포트 배치**: 이 대조 패널은 **dotplot 과 같은 절(annotation 절)에 함께** 놓는다.
@@ -144,12 +125,12 @@ sc.pl.umap(adata, color="celltype_broad", ax=axes[1], show=False,
 > GNLY·KLRD1 이 켜져 있다" 를 확인하는 흐름이 되어야 한다. 둘을 다른 절로 떼어 놓으면
 > 독자가 라벨의 근거를 따라갈 수 없다.
 
-### 2-1. Cluster marker dotplot (필수)
+### 1-1. Cluster marker dotplot (필수)
 
 annotation 이 끝나면 cluster 별로 marker 발현이 실제로 분리되는지 **dotplot 으로 확인한다.**
 
 1. **1차 dotplot**: 이 조직에서 흔히 쓰는 전체 marker 세트(`data/core_markers.xlsx` 가 있으면
-   그 유전자들, 없으면 celltypist 모델의 대표 마커)로 `sc.pl.dotplot(groupby="leiden", ...)`
+   그 유전자들, 없으면 이 조직에서 통용되는 대표 마커)로 `sc.pl.dotplot(groupby="leiden", ...)`
    를 그린다.
 
    **marker 를 세포 타입별로 묶어서 넘긴다.** `var_names` 에 유전자 이름을 평평한
@@ -192,7 +173,7 @@ annotation 이 끝나면 cluster 별로 marker 발현이 실제로 분리되는�
 
 2. **한눈에 클러스터 구분이 안 되면** (예: 대부분의 클러스터에서 여러 마커가 비슷한
    크기·색으로 찍혀 있어 어느 마커가 어느 클러스터를 가르는지 바로 안 보이는 경우)
-   — **2차 축소 dotplot**을 추가로 그린다. celltypist 로 배정된 celltype 과 도메인
+   — **2차 축소 dotplot**을 추가로 그린다. 배정된 celltype 과 도메인
    지식을 바탕으로, **타입마다 가장 특이적인 marker 1~3개만** 추려서 다시 그린다.
    이때도 **타입별로 묶은 딕셔너리로 넘기고, positive `(+)` / negative `(-)` 구획을
    둘 다 남긴다**(1번과 같은 이유) — 축소한다고 negative 를 통째로 버리지 않는다.
@@ -205,19 +186,19 @@ annotation 이 끝나면 cluster 별로 marker 발현이 실제로 분리되는�
 파일명 예: `results/05_annotation/figures/dotplot_core_markers.png`(1차),
 `results/05_annotation/figures/dotplot_curated_markers.png`(2차, 필요시).
 
-### 2-3. 결정 로그에 남길 것
+### 1-3. 결정 로그에 남길 것
 
 대조 패널에서 읽히는 것 중 **클러스터와 세포 타입이 1:1 이 아닌 지점**을 기록한다 —
 한 타입이 여러 클러스터로 갈렸다면 왜 합치지 않았는지, 한 클러스터가 근거 약해
 `Ambiguous`/`unassigned` 로 남았다면 그 판단 근거를 남긴다.
 
-## 3. DEG 시각화 — 두 개의 병렬 패널 세트
+## 2. DEG 시각화 — 두 개의 병렬 패널 세트
 
 DEG 는 목적이 다른 두 가지가 있고, **각각 다른 임베딩 위에서 그려야 한다.** 하나로
 뭉뚱그리면 조건 신호가 배치 보정으로 지워지거나, 반대로 세포 타입 구조가 조건 차이에
 휩쓸려 보이지 않는다.
 
-### 3-1. Celltype DEG 패널 — "세포 타입이 잘 갈라졌는가"
+### 2-1. Celltype DEG 패널 — "세포 타입이 잘 갈라졌는가"
 
 **목적**: annotation 이 만든 세포 타입 구조 자체를 보여주고, 그 구조를 만든 marker 유전자를
 같이 보여준다.
@@ -238,7 +219,7 @@ DEG 는 목적이 다른 두 가지가 있고, **각각 다른 임베딩 위에�
   (`results/05_annotation/figures/celltype_marker_umap_topgenes.png` 계열).
 - 파일명 예: `results/05_annotation/figures/celltype_deg_panel.png`.
 
-### 3-2. 조건(ctrl vs stim) DEG 패널 — "조건 반응이 뚜렷한가"
+### 2-2. 조건(ctrl vs stim) DEG 패널 — "조건 반응이 뚜렷한가"
 
 **목적**: 배치 보정을 걸지 않은 원본 표현형 위에서 조건이 만드는 이동을 보여주고,
 그 이동을 만든 유전자의 발현을 **세포 단위로** 보여준다.
@@ -263,23 +244,23 @@ DEG 는 목적이 다른 두 가지가 있고, **각각 다른 임베딩 위에�
 > 그린다. pre-integration 임베딩은 이미 조건에 따라 세포를 공간적으로 갈라 놓으므로,
 > 한 패널에 다 그리면 조건 차이가 그림 안에서 바로 읽힌다 — 굳이 `ctrl` 패널과 `stim`
 > 패널로 나누면 같은 색 스케일을 눈으로 옮겨 가며 비교해야 해서 오히려 대비가 약해진다.
-> 이 규칙은 4-1 pathway 활성 UMAP 패널에도 똑같이 적용된다 — 거기서도 조건은 패널을
+> 이 규칙은 3-1 pathway 활성 UMAP 패널에도 똑같이 적용된다 — 거기서도 조건은 패널을
 > 쪼개는 기준이 아니라 **한 패널 안의 색**이다.
 
-### 3-3. 결정 로그에 남길 것
+### 2-3. 결정 로그에 남길 것
 
 두 패널 세트가 **서로 다른 임베딩을 의도적으로 쓴다는 사실**을 결정 로그에 한 줄로
 남긴다 — 이후 검증자나 리뷰어가 "왜 UMAP이 두 종류냐"고 묻지 않도록.
 
-## 4. 기능 분석(GSEA·pathway) 시각화 — pathway 활성을 세포 단위로 보여준다
+## 3. 기능 분석(GSEA·pathway) 시각화 — pathway 활성을 세포 단위로 보여준다
 
 enrichment 표(상위 pathway 순위·점수)만으로는 그 pathway 가 실제로 어느 세포에서 얼마나
 발현되는지, 조건에 따라 어떻게 갈리는지 보이지 않는다.
 [sc-best-practices의 조건 비교·기능 분석 챕터](https://www.sc-best-practices.org/conditions/gsea-pathway/)
 방식을 따라 아래 두 그림을 **enrichment 표에 추가로** 그린다. 대상 pathway 는 상위
-결과(양성 대조인 `INTERFERON_ALPHA_RESPONSE` 계열 포함)에서 3~5개를 고른다.
+결과에서 3~5개를 고른다 — 왜 그 pathway 를 골랐는지는 결정 로그에 남긴다.
 
-### 4-1. Pathway 활성 UMAP 패널 (pathway 하나당 한 패널 + 조건 색 패널)
+### 3-1. Pathway 활성 UMAP 패널 (pathway 하나당 한 패널 + 조건 색 패널)
 
 **목적**: 고른 pathway 의 세포 단위 활성 점수(`dc.mt.*` 결과의 score matrix, 즉
 `adata.obsm["score_..."]` 류)를 UMAP 위에 점 색으로 얹어, 그 활성이 특정 세포 타입/영역에
@@ -287,7 +268,7 @@ enrichment 표(상위 pathway 순위·점수)만으로는 그 pathway 가 실제
 그리드로 배치한다** — pathway 활성은 서로 비교해서 읽는 값이라, 파일을 오가며 보면
 "어느 pathway 가 어느 영역에서 켜지는가" 라는 이 그림의 핵심이 드러나지 않는다.
 
-- **비보정(pre-integration) UMAP**을 쓴다 — 3-2 조건 DEG 패널과 같은 이유로, 배치
+- **비보정(pre-integration) UMAP**을 쓴다 — 2-2 조건 DEG 패널과 같은 이유로, 배치
   보정된 임베딩을 쓰면 조건이 만드는 활성 차이가 지워질 수 있다. 모든 패널이 **같은
   임베딩·같은 축 범위**를 써야 패널 간 위치 비교가 성립한다.
 - **첫 패널은 조건(ctrl vs stim) 색 UMAP 이다.** 나머지 pathway 패널을 읽는 기준점이
@@ -296,9 +277,9 @@ enrichment 표(상위 pathway 순위·점수)만으로는 그 pathway 가 실제
   때문인지 구분할 수 없다.
 - **나머지 패널은 pathway 하나당 하나씩**, 색이 그 세포의 pathway 활성 점수다. 점 하나가
   세포 하나다.
-- **ctrl 과 stim 세포는 모든 패널에 함께 그린다** — 3-2 의 규칙과 같다. 첫 패널에서
+- **ctrl 과 stim 세포는 모든 패널에 함께 그린다** — 2-2 의 규칙과 같다. 첫 패널에서
   조건을 색으로 구분하는 것이지, 조건별로 패널을 쪼개는 것이 아니다. 조건 간 활성
-  분포를 수치로 비교하는 일은 4-2 stacked violin 이 맡는다.
+  분포를 수치로 비교하는 일은 3-2 stacked violin 이 맡는다.
 - **색 스케일**: 활성 점수는 0 을 중심으로 음수·양수가 함께 나오므로 발현량용
   순차 컬러맵(`YlOrRd` 등)을 쓰지 않는다. `cmap="RdBu_r"` 처럼 발산형을 쓰고
   `vcenter=0` 으로 0 을 중앙에 고정한다. 그렇게 해야 "활성이 낮다" 와 "활성이 음수다"
@@ -318,10 +299,10 @@ sc.pl.embedding(
 
 - 파일명 예: `results/07_functional/figures/pathway_umap_panel.png`.
 
-### 4-2. Ctrl vs Stim 구분 stacked violin plot
+### 3-2. Ctrl vs Stim 구분 stacked violin plot
 
 **목적**: 고른 pathway 활성 점수의 분포를 celltype 별로, 그리고 그 안에서 ctrl/stim 을
-나눠 비교한다 — 4-1 UMAP 패널은 공간 패턴을, stacked violin 은 celltype × 조건별 분포
+나눠 비교한다 — 3-1 UMAP 패널은 공간 패턴을, stacked violin 은 celltype × 조건별 분포
 차이를 정량적으로 보여준다.
 
 `sc.pl.stacked_violin` 은 `groupby` 를 하나만 받으므로 celltype 과 조건을 한 축에 같이
@@ -390,16 +371,16 @@ for ax, pw in zip(axes, pathways):
 그린 뒤에는 **반드시 그림을 열어서** 바이올린이 실제로 폭을 가지고 있는지, 같은 celltype
 의 ctrl/stim 이 이웃해 있는지 확인한다.
 
-### 4-3. 결정 로그에 남길 것
+### 3-3. 결정 로그에 남길 것
 
-고른 pathway 목록(왜 이 pathway 들을 골랐는지 — 양성 대조 포함 여부), UMAP 패널에 쓴
+고른 pathway 목록(왜 이 pathway 들을 골랐는지), UMAP 패널에 쓴
 임베딩이 pre-integration 인 이유, stacked violin 에서 celltype×조건을 어떻게 묶었는지를
 한 줄로 남긴다. 0번의 폰트 규칙을 지켰는지(그림 텍스트를 영어로 뒀는지, 아니면 어떤
 한글 폰트를 지정했는지)도 함께 남긴다.
 
-## 5. step-validator 채점 포인트 (요약)
+## 4. step-validator 채점 포인트 (요약)
 
-- annotation 단계: celltypist 사용 여부·모델명 기록, **cluster↔celltype 대조 패널**(같은
+- annotation 단계: **cluster↔celltype 대조 패널**(같은
   post-integration 임베딩 위에 clustering 결과와 celltype 을 나란히) 존재, 1차 dotplot
   존재, 필요시 2차 축소 dotplot과 그 판단 근거. **dotplot 의 marker 가 세포 타입별로
   묶여 있는지**(알파벳 순 평평한 리스트면 완결성을 깎는다). 리포트에서 대조 패널과
