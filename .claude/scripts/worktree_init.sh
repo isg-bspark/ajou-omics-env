@@ -41,8 +41,9 @@ DEFAULT_GOAL="IFN-beta 자극에 대한 PBMC 세포 타입별 반응 차이를 �
 # data/genesets/ 는 기능 분석의 prior knowledge 캐시다. 실험마다 다른 gene set 을 받으면
 #   "gene set 을 바꿨더니 결과가 달라졌다" 를 말할 수 없으므로 공유한다.
 #   ★ git 에 커밋되어 있어야 링크가 걸린다 (tools/link_shared.py 가 git ls-files 를 쓴다).
-# .venv 는 이 목록과 별개다 — .gitignore 대상이라 git ls-files 에 안 잡히므로
-#   tools/link_shared.py 를 못 쓴다. 아래 worktree 생성 이후 별도 블록에서 심볼릭 링크로 건다.
+# .venv 와 .claude/ 안의 git 미추적 항목(1교시에 설치한 scanpy 스킬 등)은 이 목록과
+#   별개다 — .gitignore 대상이라 git ls-files 에 안 잡혀 tools/link_shared.py 를 못 쓴다.
+#   아래 link_untracked_claude() 와 .venv 블록에서 따로 심볼릭 링크로 건다.
 SHARED=(data/raw data/genesets data/core_markers.xlsx agent_lab .devcontainer .claude tools)
 
 # --- 인자 ------------------------------------------------------------------
@@ -118,6 +119,36 @@ prune_dead_links() {
   done
 }
 
+# git 이 추적하지 않는 .claude/ 항목을 디렉토리째 링크한다.
+#
+# .claude 는 SHARED 에 있지만 tools/link_shared.py 는 git ls-files 로 찾은 **추적 파일만**
+# 건다. 1교시에 설치하고 손본 scanpy 스킬처럼 .gitignore 대상인 항목은 거기서 빠져
+# worktree 안에 아예 없게 된다 — 실험 세션이 "scanpy 스킬을 읽고 따르라"는 지시를
+# 받아도 읽을 파일이 없다. .venv 와 같은 이유로 여기서 따로 건다.
+#
+# 추적되는 스킬·에이전트는 이미 파일 단위 링크가 걸려 있으므로 건너뛴다.
+link_untracked_claude() {
+  local wt="$1" sub entry name dst
+  for sub in .claude/skills .claude/agents .claude/commands; do
+    [ -d "$ROOT/$sub" ] || continue
+    for entry in "$ROOT/$sub"/*; do
+      [ -e "$entry" ] || continue
+      name="$(basename "$entry")"
+      if [ -n "$(git -C "$ROOT" ls-files -- "$sub/$name")" ]; then
+        continue                      # 추적됨 — link_shared.py 가 이미 걸었다
+      fi
+      dst="$wt/$sub/$name"
+      if [ -L "$dst" ] || [ -e "$dst" ]; then
+        continue
+      fi
+      mkdir -p "$(dirname "$dst")"
+      ln -s "$(python3 -c 'import os,sys; print(os.path.relpath(*sys.argv[1:3]))' \
+                 "$entry" "$(dirname "$dst")")" "$dst"
+      echo "✓ $sub/$name → main 공유 (심볼릭 링크, git 미추적)"
+    done
+  done
+}
+
 # 이미 만들어 둔 worktree 를 현재 branch 최신 커밋으로 갱신한다.
 # 공유 경로는 skip-worktree + 심볼릭 링크 상태라 그대로는 merge 가 거부된다.
 # 그래서 링크를 먼저 걷어내고(--unlink) merge 한 뒤 새 공유 목록으로 다시 건다.
@@ -135,6 +166,7 @@ refresh_worktree() {
   python3 "$ROOT/tools/link_shared.py" "$ROOT" "$ROOT/$DIR" "${SHARED[@]}"
   python3 "$ROOT/tools/link_shared.py" --link "$ROOT" "$ROOT/$DIR" "${SHARED[@]}"
   prune_dead_links "$ROOT_P/$DIR"
+  link_untracked_claude "$ROOT_P/$DIR"
   echo "✓ $DIR 를 $BASE 최신 커밋으로 갱신했습니다"
 }
 
@@ -275,6 +307,8 @@ if [ -d "$ROOT/.venv" ] && [ ! -e "$DIR/.venv" ]; then
   ln -s "../../.venv" "$DIR/.venv"
   echo "✓ .venv → main 공유 (심볼릭 링크)"
 fi
+
+link_untracked_claude "$ROOT_P/$DIR"
 
 # CLAUDE.md — 공통 지침 + 이 실험의 진행 방식
 if [ -f CLAUDE.md ]; then

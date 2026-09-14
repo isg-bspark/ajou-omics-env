@@ -19,7 +19,7 @@ CLAUDE.md
 __pycache__/
 *.py[cod]
 *.bak
-.venv/
+.venv
 venv/
 .ipynb_checkpoints/
 
@@ -45,4 +45,4 @@ out/
 agent_lab/lab_mcp.py
 agent_lab/INSTRUCTOR_PART3.md
 rehearsal/
-.claude/skills/scanpy/
+.claude/skills/scanpy
