@@ -34,9 +34,12 @@
         "ms-python.python",
         "ms-python.vscode-pylance",
         "ms-toolsai.jupyter",
-        "ms-toolsai.jupyter-renderers"
+        "ms-toolsai.jupyter-renderers",
+        "ms-vscode.live-server"
       ],
       "settings": {
+        "livePreview.openPreviewTarget": "Embedded Preview",
+        "livePreview.serverRoot": "",
         "workbench.colorTheme": "Default Dark Modern",
         "workbench.preferredDarkColorTheme": "Default Dark Modern",
         "window.autoDetectColorScheme": false,
