@@ -184,6 +184,10 @@ annotation·DEG 단계의 그림 규격(cluster↔celltype 대조 패널, dotplo
   딕셔너리를 넘겨 타입 구획이 그려진 형태) 있는가. 알파벳 순으로 늘어선 평평한 유전자
   리스트라면 어느 marker 묶음이 어느 타입을 가리키는지 그림에서 읽을 수 없으므로
   완결성을 깎는다
+- 참조 marker 파일에 negative marker(`Type == "Negative"` 행)가 있는데 dotplot 에
+  **positive 만** 그렸다면 완결성을 깎는다. 타입마다 `X (+)` / `X (-)` 두 구획이
+  그려져 배제 근거까지 읽히는 형태여야 한다. 2차 축소 dotplot 에서도 negative 가
+  통째로 빠졌으면 같은 이유로 깎는다
 - 1차 dotplot에서 클러스터 구분이 한눈에 안 보이는데도 2차 축소 dotplot
   (`dotplot_curated_markers.png` 류, celltype+도메인 지식 기반 marker 1~3개로 축소)이
   **없다면** 완결성을 깎는다. 1차만으로 클러스터마다 뚜렷한 marker가 식별되면 2차는

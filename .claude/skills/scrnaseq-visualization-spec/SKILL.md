@@ -130,20 +130,44 @@ annotation 이 끝나면 cluster 별로 marker 발현이 실제로 분리되는�
    대응을 확인하는 것이므로, **`{세포타입: [marker...]}` 딕셔너리로 넘겨** 타입별
    구획(bracket)이 그려지게 한다.
 
+   **positive marker 만 그리지 않는다 — negative marker 도 같이 그린다.**
+   `data/core_markers.xlsx` 는 `Cell type` / `Marker` / `Type`(`Positive`/`Negative`)
+   세 열 구조이고, `Type == "Negative"` 행은 "이 타입이라면 **꺼져 있어야 하는**
+   유전자"다. 이걸 빼고 그리면 dotplot 이 "켜져 있다"만 보여 주고 **배제 근거**
+   (예: CD4 T 라면 `CD8A`·`NKG7`·`LYZ` 가 꺼져 있어야 한다)는 못 보여 준다 — 인접한
+   타입끼리 헷갈리는 구간이 바로 이 배제 근거로 갈린다.
+
+   타입마다 **positive 묶음과 negative 묶음을 각각 별도 구획으로** 넘겨, 그림에서
+   `CD4 T cells (+)` / `CD4 T cells (-)` 처럼 나란히 읽히게 한다. 한 묶음에 섞으면
+   어느 점이 켜져야 맞고 어느 점이 꺼져야 맞는지 구분이 사라진다. 구획 라벨은
+   0번 규칙대로 **영어(+ ASCII `(+)`/`(-)`)**로 쓴다.
+
    ```python
-   marker_groups = {ct: [g for g in genes if g in adata.var_names]
-                    for ct, genes in marker_dict.items()}
-   marker_groups = {ct: gs for ct, gs in marker_groups.items() if gs}
+   df = pd.read_excel("data/core_markers.xlsx")          # Cell type / Marker / Type
+   marker_groups = {}
+   for ct, sub in df.groupby("Cell type", sort=False):
+       for sign, label in (("Positive", "+"), ("Negative", "-")):
+           genes = [g for g in sub.loc[sub["Type"] == sign, "Marker"]
+                    if g in adata.var_names]
+           if genes:
+               marker_groups[f"{ct} ({label})"] = list(dict.fromkeys(genes))
    sc.pl.dotplot(adata, var_names=marker_groups, groupby="leiden", ...)
    ```
 
    같은 유전자가 여러 타입의 marker 로 중복 등장하는 것은 그대로 둔다 — 그 중복 자체가
-   "이 marker 는 단독으로는 타입을 못 가른다"는 정보다.
+   "이 marker 는 단독으로는 타입을 못 가른다"는 정보다. 한 타입의 positive 가 다른 타입의
+   negative 로 다시 나오는 것도 정상이므로 그대로 둔다.
+
+   **읽는 법**: 어떤 클러스터를 `X` 로 부르려면 `X (+)` 구획의 점이 크고 진하면서
+   동시에 `X (-)` 구획의 점이 작고 옅어야 한다. 둘 중 하나만 맞으면 근거가 약한
+   것이므로 아래 3번(`unassigned-weak`)으로 넘기고 결정 로그에 남긴다.
 2. **한눈에 클러스터 구분이 안 되면** (예: 대부분의 클러스터에서 여러 마커가 비슷한
    크기·색으로 찍혀 있어 어느 마커가 어느 클러스터를 가르는지 바로 안 보이는 경우)
    — **2차 축소 dotplot**을 추가로 그린다. celltypist 로 배정된 celltype 과 도메인
    지식을 바탕으로, **타입마다 가장 특이적인 marker 1~3개만** 추려서 다시 그린다.
-   이때도 **타입별로 묶은 딕셔너리로 넘긴다**(1번과 같은 이유).
+   이때도 **타입별로 묶은 딕셔너리로 넘기고, positive `(+)` / negative `(-)` 구획을
+   둘 다 남긴다**(1번과 같은 이유) — 축소한다고 negative 를 통째로 버리지 않는다.
+   타입마다 positive 1~3개 + negative 1~2개 정도가 기준이다.
    두 그림 모두 저장하고, 축소가 필요했는지/왜 필요했는지 결정 로그에 남긴다.
 3. 축소 여부와 무관하게 최종적으로 **클러스터마다 최소 1개 이상의 뚜렷한 marker**가
    dotplot 상에서 식별돼야 한다. 안 되면 근거 약한 클러스터로 표시하고 annotation 요약에
@@ -172,14 +196,17 @@ DEG 는 목적이 다른 두 가지가 있고, **각각 다른 임베딩 위에�
 - **왼쪽 패널**: UMAP. `stim`(관심 조건)을 포함해 batch 보정(Harmony 등)된 임베딩
   위에서 계산한 clustering 결과를 그린다 — 즉 3단계 배치 통합 이후의 `post-integration`
   UMAP (`umap_post_integration.png` 계열). 색은 celltype.
-- **오른쪽 패널**: celltype 별 marker 유전자(cluster marker, one-vs-rest DEG)를
-  **scatter plot** 으로 그린다. **volcano 가 아니다** — 유의성 강조가 아니라 발현
-  수준 자체를 보여주는 게 목적이다. 기본 형태: x축 = 클러스터 내 발현 세포 비율
-  (`pct_expressed_in_group`), y축 = 클러스터 내 평균발현(`mean_expr_in_group`), 점 색 =
-  클러스터/celltype, 상위 marker 유전자 이름을 라벨로 표시. (대안으로 x=log2FC,
-  y=클러스터 내 평균발현 을 써도 되지만 -log10(padj) 를 축으로 쓰는 볼케이노 형태는
-  안 된다.)
+- **오른쪽 패널**: **같은 post-integration UMAP 위에** celltype 별 marker 유전자
+  (cluster marker, one-vs-rest DEG) 상위 유전자의 **발현량을 색으로** 얹는다
+  (`sc.pl.embedding(..., color="<gene>", cmap="YlOrRd")`). 여기서 말하는
+  **scatter plot 은 "점 하나 = 세포 하나, 색 = 그 세포의 발현량" 인 UMAP 발현 그림**이지,
+  유전자를 점으로 찍는 요약 산점도가 아니다.
+- **volcano · MA plot 류(유전자 하나가 점 하나)는 쓰지 않는다.** 유전자 수준 통계는
+  표(CSV)로 남기고, 그림은 그 marker 가 **어느 세포에서** 켜져 있는지를 보여주는 데 쓴다.
+  x축=pct_expressed, y축=평균발현 같은 **유전자 요약 산점도도 이 패널에서는 쓰지 않는다.**
 - 왼쪽·오른쪽을 **한 figure 안에 나란히**(`plt.subplots(1, 2, ...)`) 배치한다.
+- 상위 marker 가 여러 개면 **유전자마다 UMAP 하나씩** 그리드로 배치한다
+  (`figures/05_annotation/celltype_marker_umap_topgenes.png` 계열).
 - 파일명 예: `figures/05_annotation/celltype_deg_panel.png`.
 
 ### 3-2. 조건(ctrl vs stim) DEG 패널 — "조건 반응이 뚜렷한가"
