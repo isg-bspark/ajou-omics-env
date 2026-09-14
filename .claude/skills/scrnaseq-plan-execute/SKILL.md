@@ -190,7 +190,7 @@ R5  분석 코드를 짜기 전에 그 단계를 다루는 스킬이 있으면 �
       resolution(예: 0.3/0.5/0.8/1.0)으로 Leiden 을 각각 돌리고, `data/core_markers.xlsx`
       같은 참조 marker 파일이 있으면 그 positive/negative marker 로 resolution 마다
       cluster marker dotplot 을 그린다(dotplot 자체의 형식은 `scrnaseq-visualization-spec`
-      의 2-1 을 따른다 — 세포 타입별로 묶고 positive/negative 를 구분). 그 dotplot 들을
+      의 `references/annotation.md` 2번을 따른다 — 세포 타입별로 묶고 positive/negative 를 구분). 그 dotplot 들을
       비교해서 "각 resolution 이 주요 세포 타입을 얼마나 깨끗하게 분리하는지, 해상도를
       올렸을 때 새로 갈리는 것이 의미 있는 하위 타입인지 아니면 이미 분리된 타입의
       불필요한 재분할인지"를 근거로 권장 resolution 을 제시하고 사용자에게 확인받는다
@@ -199,8 +199,9 @@ R5  분석 코드를 짜기 전에 그 단계를 다루는 스킬이 있으면 �
       계속 한 클러스터로 뭉쳐 있었는지(있다면 이후 annotation 단계에서 celltypist·
       서브클러스터링으로 별도 처리가 필요하다는 뜻이다)를 결정 로그에 남긴다.
 
-R6  annotation·DEG·기능분석 단계의 그림을 그리기 전에 `scrnaseq-visualization-spec`
-    스킬을 읽는다. annotation 은 celltypist 로 수행하고 cluster marker dotplot으로
+R6  배치 통합·annotation·DEG·기능분석 단계의 그림을 그리기 전에 `scrnaseq-visualization-spec`
+    스킬을 읽고, **그 단계에 해당하는 참조 파일 하나**(`references/` 아래 integration ·
+    annotation · deg · functional 중 하나)를 읽는다 — 네 개를 한꺼번에 읽지 않는다. annotation 은 celltypist 로 수행하고 cluster marker dotplot으로
     분리도를 검증하며(참조 marker 파일에 negative marker 가 있으면 같이 그린다),
     DEG 그림은 celltype DEG 패널(post-integration UMAP + marker 발현 UMAP)과
     조건 DEG 패널(pre-integration UMAP + 조건 DEG 발현 UMAP)을 구분해서 그린다 —

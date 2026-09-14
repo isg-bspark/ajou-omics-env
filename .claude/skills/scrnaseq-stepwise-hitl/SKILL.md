@@ -88,12 +88,11 @@ API 를 짐작하지 않는다. 스킬끼리 충돌하면 이 프로젝트 전�
 (`scrnaseq-visualization-spec` 등)이 범용 스킬(`scanpy`)보다 우선하며, 어느 쪽을
 따랐는지 결정 로그에 남긴다.
 
-annotation 은 marker 점수 최댓값 할당이 아니라 **celltypist** 로 수행하고, annotation·
-DEG·기능분석 단계의 그림은 `scrnaseq-visualization-spec` 스킬을 코드를 짜기 전에 읽고
-그 규격(positive·negative 를 같이 그리는 cluster marker dotplot, celltype DEG 패널과
-조건 DEG 패널을 서로 다른 임베딩 위에 그리는 것, 기능 분석의 pathway 활성 UMAP 패널·
-ctrl/stim 구분 stacked violin, 한글 폰트 깨짐 방지)을 따른다. 이 단계는 진행 방식
-(단계별 개입)과 무관하게 스킬들을 동일하게 지킨다.
+annotation 은 marker 점수 최댓값 할당이 아니라 **celltypist** 로 수행한다.
+
+그림은 `scrnaseq-visualization-spec` 스킬이 정한다. **주요 단계의 분석이 끝날 때마다
+그림 코드를 짜기 전에 이 스킬을 `Skill` 도구로 호출한다** — 언제 어떻게 호출하는지는
+아래 3-5 에 적었다. 이 단계는 진행 방식(단계별 개입)과 무관하게 스킬들을 동일하게 지킨다.
 
 REPORT 단계도 마찬가지로 `scrnaseq-plan-execute` 의 `references/report.md` 규격을 그대로
 따른다 — `results/summary/report.html` 에 쓰고, `python tools/build_report.py` 로 그림을
@@ -159,10 +158,14 @@ decoupler 2.2.0, celltypist 1.7.1). 제시 전에 달라졌을 수 있으니 한
 - **배치 통합** — 조건 변수를 통계 검정의 `batch_key` 로 보정할 것인가, 아니면
   clustering/annotation 목적의 시각화용 임베딩에만 보정을 걸고 통계 입력은 원본으로
   남길 것인가. 조건 자체를 보정하면 찾으려는 신호가 지워질 수 있다.
+  보정한 뒤에는 `batch_key` 가 실제로 겹쳤는지와 세포 타입 구조가 살아남았는지를
+  `scrnaseq-visualization-spec` 의 `references/integration.md` 규격대로 그림과 표로 확인하고, **보정 전 임베딩을
+  따로 보관한다** — 뒤의 조건 DEG·pathway 그림이 그것을 쓴다.
 - **Clustering resolution** — 하나만 고정으로 쓰지 않는다. 최소 3~4개 후보(예:
   0.3/0.5/0.8/1.0)로 Leiden 을 각각 돌리고, `data/core_markers.xlsx` 같은 참조 marker
   파일이 있으면 그 positive/negative marker 로 resolution 마다 cluster marker dotplot 을
-  그린다(dotplot 형식은 `scrnaseq-visualization-spec` 의 2-1 을 따른다). 그 dotplot 들을
+  그린다(dotplot 형식은 `scrnaseq-visualization-spec` 의 `references/annotation.md` 2번을
+  따른다). 그 dotplot 들을
   비교해서 "각 resolution 이 주요 세포 타입을 얼마나 깨끗하게 분리하는지, 해상도를
   올렸을 때 새로 갈리는 것이 의미 있는 하위 타입인지 아니면 이미 분리된 타입의 불필요한
   재분할인지"를 근거로 권장값을 제시하고 선택받는다. 어느 세포 타입이 모든 후보
@@ -186,6 +189,34 @@ decoupler 2.2.0, celltypist 1.7.1). 제시 전에 달라졌을 수 있으니 한
 - `scrnaseq-visualization-spec` 의 그림 규격 — 어떤 임베딩 위에 무엇을 그릴지는 규격이
   정한다. 사용자가 고르는 것은 **분석 방법**이지 그림 형식이 아니다.
 - annotation 을 celltypist 로 한다는 것(모델 선택은 사용자가 한다)
+
+### 3-5. 주요 단계가 끝나면 — 그림은 규격 스킬을 호출해서 그린다
+
+분석 코드가 끝나고 그 단계의 수치가 나온 **직후**, 그림 코드를 한 줄이라도 짜기 전에
+`Skill` 도구로 `scrnaseq-visualization-spec` 을 호출하고, **그 단계에 해당하는 참조
+파일 하나를 읽는다**(네 개를 다 읽지 않는다 — 다른 단계 규격은 지금 쓰이지 않는다).
+기억에 남은 규격으로 그리지 않는다 — 규격은 바뀌고, 이 스킬이 정본이다.
+
+호출하는 자리는 다섯이다.
+
+| 단계 | 호출 시점 | 읽을 파일 | 그 단계에서 나와야 하는 그림 |
+|---|---|---|---|
+| 배치 통합 | 보정이 끝나고 `neighbors`·UMAP 을 다시 만든 뒤 | `references/integration.md` | 보정 전·후 UMAP 대조 패널(`batch_key` 색) + 과보정 확인 marker 패널 + 겹침 표 |
+| Clustering | resolution 후보를 다 돌린 뒤, 비교 dotplot 을 그리기 전 | `references/annotation.md` | resolution 별 cluster marker dotplot |
+| Annotation | 라벨 배정이 끝난 뒤 | `references/annotation.md` | cluster↔celltype 대조 패널 + cluster marker dotplot |
+| 조건 간 차등발현 | DEG 표가 나온 뒤 | `references/deg.md` | celltype DEG 패널 + 조건 DEG 그림 |
+| 기능 분석 | enrichment 표가 나온 뒤 | `references/functional.md` | pathway 활성 UMAP 패널 + ctrl/stim stacked violin |
+
+- **한 번 읽었으니 됐다고 넘기지 않는다.** 다섯 자리에서 각각 호출한다. 단계 사이에 대화가
+  압축되면 규격이 컨텍스트에서 사라지기 때문이다.
+- 호출은 **묻지 않고 그냥 한다**(3-4 와 같은 이유). 사용자가 고르는 것은 분석 방법이지
+  그림 형식이 아니므로, 이 호출로 진행을 멈추지 않는다.
+- 그림을 저장한 뒤 그 단계에서 **규격이 요구하는 그림이 다 나왔는지 파일 목록으로
+  확인**하고, 빠진 것이 있으면 다음 단계로 넘어가기 전에 채운다. `step-validator` 는
+  이 규격으로 채점하므로, 여기서 빠뜨린 그림은 그대로 감점이 된다.
+- 규격과 사용자가 고른 분석 방법이 어긋나면(예: 배치 보정을 안 하기로 해서 post-
+  integration 임베딩이 없는 경우) 임의로 대체하지 말고, 무엇을 어떻게 바꿔 그렸는지
+  결정 로그에 남긴다.
 
 ## 4. 끝났을 때
 

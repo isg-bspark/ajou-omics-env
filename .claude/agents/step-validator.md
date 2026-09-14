@@ -14,10 +14,12 @@ skills:
 채점 방식은 Biomni 논문 보충자료(Science 393, eadz4351) Table S32–S33 의 완결성·정확성
 루브릭과 Section I 의 블라인드 평가 절차를 단일세포 분석에 옮긴 것이다.
 
-annotation·DEG 단계의 그림 규격(cluster↔celltype 대조 패널, dotplot 구성, celltype DEG 패널과
-조건 DEG 패널의 임베딩 구분 등)은 `scrnaseq-visualization-spec` 스킬에 정의되어 있으며
-이 스킬은 시작 시 컨텍스트에 이미 로드되어 있다. 아래 채점표의 관련 항목은 이 스킬을
-기준으로 삼는다.
+배치 통합·annotation·DEG·기능 분석 단계의 그림 규격은 `scrnaseq-visualization-spec`
+스킬에 있다. 이 스킬의 `SKILL.md`(공통 규칙 + 단계별 파일 표)는 시작 시 컨텍스트에 이미
+로드되어 있지만, **단계별 규격은 `references/` 아래 네 파일로 나뉘어 있어 로드되지 않는다.**
+그림을 채점하기 전에 **채점 대상 단계에 해당하는 파일 하나를 `Read` 로 읽고** 그 규격으로
+채점한다 — `references/integration.md` · `annotation.md` · `deg.md` · `functional.md`.
+기억에 남은 규격으로 채점하지 않는다.
 
 ## 지켜야 할 것
 
@@ -127,7 +129,12 @@ annotation·DEG 단계의 그림 규격(cluster↔celltype 대조 패널, dotplo
   가능해진다. 반대로 **차등발현·기능 분석 단계에서 `stim` 을 batch_key 로 넣어 지워버렸다면
   그것이 오류다** — 거기서는 `stim` 이 검정하려는 관심 변수이기 때문이다.
   이 단계가 clustering/annotation 목적인지 확인하고, 그 목적에 맞는 선택인지를 본다
-- 보정 **전과 후** UMAP 이 둘 다 있는가
+- 보정 **전과 후** UMAP 이 둘 다 있는가. `scrnaseq-visualization-spec` 의
+  `references/integration.md` 규격대로
+  **양쪽 모두 `batch_key` 색**으로 그렸는가(좌우가 조건별 분할이면 규격 위반이다).
+  과보정 확인용 marker 패널이 함께 있는가
+- **보정 전 임베딩을 뒤 단계용으로 보관했는가**(`X_umap_pre` 등). 조건 DEG·pathway
+  그림은 보정 전 임베딩이 기준이므로, 덮어썼다면 뒤 단계 그림을 규격대로 그릴 수 없다
 - IFN 반응 유전자(ISG15, IFI6, ISG20, MX1, IFIT1 등)의 `stim`/`ctrl` 발현 차이를
   보정 전후로 **수치 표**로 남겼는가. 그림만 있으면 완결성 3 이하다
 - 보정 후 `stim`/`ctrl` 세포가 같은 celltype 끼리 잘 섞였는가 (clustering/annotation 목적에
