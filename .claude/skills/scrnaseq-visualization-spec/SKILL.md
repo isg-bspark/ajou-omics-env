@@ -1,6 +1,6 @@
 ---
 name: scrnaseq-visualization-spec
-description: 단일세포 RNA-seq 분석의 annotation·DEG·기능 분석(GSEA·pathway) 단계에서 반드시 만들어야 하는 그림의 종류·구성·기준 임베딩을 명시한다. annotation 은 celltypist 로 수행하고, clustering 결과와 celltype 을 같은 임베딩 위에 나란히 놓은 cluster↔celltype 대조 패널과 cluster marker dotplot(marker 를 세포 타입별로 묶어서 그림, 필요하면 curated marker로 축소)을 리포트의 같은 절에 함께 배치해 검증한다. DEG 시각화는 celltype DEG(post-integration UMAP + marker scatter)와 조건 간 DEG(pre-integration UMAP + 유전자 발현량 색) 두 세트로 나누어 서로 다른 임베딩을 쓴다. 모든 조건 관련 그림은 점 하나가 세포 하나인 scatter 이며 volcano·MA plot 은 쓰지 않고, ctrl 과 stim 을 좌우 패널로 쪼개지 않고 한 패널에 함께 그린다. 기능 분석은 pathway 활성 점수를 UMAP scatter와 ctrl/stim 구분 stacked violin으로 보여주고, 모든 그림은 한글 폰트 깨짐(tofu) 없이 렌더링한다. macOS에서 그림 그리는 스크립트를 백그라운드로 돌릴 때 matplotlib 기본(macosx) 백엔드 때문에 에러 없이 멈추는(hang) 문제와 예방법(matplotlib.use("Agg"))도 다룬다. scrnaseq-plan-execute·scrnaseq-stepwise-hitl 실행 중 annotation·DEG·기능분석 단계 코드를 짜기 전에 읽는다. 트리거: "annotation 그림", "DEG 그림", "dotplot", "volcano plot", "scatter plot", "GSEA 그림", "pathway 그림", "stacked violin", "한글 깨짐", "폰트 깨짐", "스크립트가 멈췄다", "백그라운드 hang", "그림 그리다가 멈춤" 단계 진입 시.
+description: scRNA-seq 분석의 annotation·DEG·기능 분석(GSEA·pathway) 단계에서 그림을 그리는 코드를 짜기 전에 읽는다. 어떤 그림을 어떤 임베딩 위에 그려야 하는지에 대한 규격이며, step-validator 는 이 규격으로 그림을 채점한다. 그림의 한글 텍스트가 깨질 때, 그림 그리는 스크립트가 에러 없이 멈출 때도 읽는다. 트리거: "annotation 그림", "DEG 그림", "dotplot", "scatter plot", "volcano plot", "GSEA 그림", "pathway 그림", "stacked violin", "한글 깨짐", "폰트 깨짐", "스크립트가 멈췄다", "그림 그리다가 멈춤".
 ---
 
 이 스킬은 8단계 scRNA-seq 파이프라인(`scrnaseq-plan-execute`/`scrnaseq-stepwise-hitl` 공용)에서
