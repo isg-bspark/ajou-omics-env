@@ -13,8 +13,7 @@
       "Bash(gh skill *)",
       "Read",
       "Edit(./.claude/skills/**)",
-      "Write(./.claude/skills/**)",
-      "Write(./out/**)"
+      "Edit(./out/**)"
     ],
     "deny": []
   }
