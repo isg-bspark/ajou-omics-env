@@ -27,7 +27,7 @@ UMAP 을 그린다).
 | 배치 통합 | `references/integration.md` | 보정 전·후 UMAP 대조 패널(`batch_key` 색) · 과보정 확인 marker 패널 · 겹침 표 |
 | Clustering · Annotation | `references/annotation.md` | cluster↔celltype 대조 패널 · cluster marker dotplot(positive/negative 묶음) |
 | 조건 간 차등발현 | `references/deg.md` | celltype DEG 패널(post-integration) · 조건 DEG 그림(pre-integration) |
-| 기능 분석(GSEA·pathway) | `references/functional.md` | pathway 활성 UMAP 패널 · ctrl/stim 구분 stacked violin |
+| 기능 분석(GSEA·pathway) | `references/functional.md` | pathway 활성 UMAP 패널(조건·celltype 기준 패널 포함) · ctrl/stim 구분 stacked violin |
 
 파일을 건너뛰고 기억으로 그리지 않는다. 규격은 바뀌고, 이 파일들이 정본이다.
 
